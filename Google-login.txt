@@ -1,0 +1,111 @@
+Steps for Google login with manual login:
+
+1) Install packages:
+
+npm i passport-google-oauth20
+
+2) login.ejs:
+
+(note- in login form, the form should have email and password (not username)
+
+<a href="/auth/google"
+    class="mt-3 px-4 py-2 border flex items-center justify-center gap-4 border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 hover:border-slate-400 hover:text-slate-900 hover:shadow transition duration-150">
+    <img class="w-6 h-6" src="https://www.svgrepo.com/show/475656/google-color.svg" loading="lazy"
+        alt="google logo">
+    <span>Login with Google</span>
+</a>
+
+3) app.js:
+
+(in starting)
+
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+
+(after var app=express())
+
+passport.use(new GoogleStrategy({
+  clientID: '1074249057722-s28pttj30gmlgqujppacorl5ion3bro8.apps.googleusercontent.com',
+  clientSecret: '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',
+  callbackURL: '/auth/google/callback',
+  scope: ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
+}, async (accessToken, refreshToken, profile, done) => {
+  const email = profile.emails[0].value;
+  const existingUser = await usersRouter.findOne({ email });
+  console.log(existingUser)
+
+  if (existingUser) {
+    existingUser.fullname = profile.displayName;
+    await existingUser.save();
+    return done(null, existingUser);
+  }
+
+  const newUser = new usersRouter({
+    email,
+    fullname: profile.displayName,
+  });
+
+  await newUser.save();
+  done(null, newUser);
+}
+)
+);
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+  usersRouter.findById(id)
+    .then(user => done(null, user))
+    .catch(error => done(error));
+});
+
+
+4) index.js:
+
+(after passport.use localstrategy)
+
+router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+
+router.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: "/login" }), (req, res) => {
+  res.redirect("/");
+});
+
+router.post("/register", async (req, res) => {
+  const { username, email, password, fullname, mobile } = req.body;
+
+  const existingUser = await userModel.findOne({ email });
+  if (existingUser) return res.status(409).json({ message: "Email already exists!" });
+
+  const newUser = new userModel({
+    username,
+    email,
+    fullname,
+    mobile,
+  });
+
+  await userModel.register(newUser, password);
+
+  res.json({ message: "Registration successful!" });
+});
+
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await userModel.findOne({ email });
+  if (!user || user.password !== password) {
+    return res.status(401).json({ message: "Invalid email or password!" });
+  }
+
+  req.login(user, (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+
+    return res.redirect('/');
+  });
+});
+
+5) NOTE- because of this functionality, req.session.passport.user will give _id of that user (earlier it used to give username of user). So, use all things accordingly. Example:
+
+const user = await userModel.findOne({ _id: req.session.passport.user });

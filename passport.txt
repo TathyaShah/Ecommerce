@@ -1,0 +1,88 @@
+1) npm i passport passport-local passport-local-mongoose mongoose express-session
+2) write app.js code first (after view-engine and before logger)
+3) setup users.js properly
+4) in index.js, try register first, then other codes
+
+Steps and code for 'login/logout':
+
+1) in app.js:
+app.use(expressSession({
+    saveUninitialized: false,
+    resave:false,
+    secret:'123456789'
+  }))
+  app.use(passport.initialize())
+  app.use(passport.session())
+  passport.serializeUser(usersRouter.serializeUser())
+  passport.deserializeUser(usersRouter.deserializeUser())
+
+
+2) in users.js:
+const mongoose=require("mongoose")
+const plm=require("passport-local-mongoose")
+mongoose.connect("mongodb://127.0.0.1:27017/endgame")
+
+const userSchema=mongoose.Schema({
+  username:String,
+  password:String,
+  secret:String
+})
+userSchema.plugin(plm)
+module.exports=mongoose.model("user", userSchema)
+
+
+3) in index.js:
+// add these 2 lines at top:
+
+const localStrategy=require("passport-local");
+passport.use(new localStrategy(userModel.authenticate()))
+
+// register route:
+router.post('/register', function(req,res){
+    var userdata=new userModel({
+      username:req.body.username,
+      secret:req.body.secret
+    })
+    userModel.register(userdata, req.body.password)
+      .then(function (){
+        passport.authenticate("local")(req,res,function(){
+          res.redirect('/profile')
+      })
+    })
+  })
+
+// login route:
+router.post('/login', passport.authenticate("local",{
+    successRedirect:'/profile',
+    failureRedirect:"/"
+  }) , function(req,res){})
+
+// logout route and isLoggedIn middleware:
+router.get('/logout',function(req,res,next){
+    req.logout(function(err){
+      if (err){
+        return next(err);
+      }
+      res.redirect('/')
+    })
+  })
+
+function isLoggedIn(req,res,next){
+    if(req.isAuthenticated()){
+      return next();
+    }
+    res.redirect('/')
+  }
+
+// home and profile route: (after localStrategy and before '/register')
+router.get('/', function(req, res) {
+    res.render('index');
+  });
+  
+  router.get('/profile',isLoggedIn, function(req,res){
+    res.render("profile")
+  })
+
+4) in index.ejs:
+-> Set form action="/route" method="post"
+-> Give input name as 'username' or 'password' or anything, which will be used in'/register' route as req.body.password, etc.

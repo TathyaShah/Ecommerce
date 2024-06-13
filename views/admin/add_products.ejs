@@ -1,0 +1,125 @@
+<% include ../partials/header.ejs %>
+
+    <body class="bg-gradient-to-r from-blue-500 to-purple-600 min-h-screen flex items-center justify-center">
+
+        <div class="max-w-4xl w-full bg-white p-10 rounded-lg shadow-lg">
+            <h1 class="text-3xl font-semibold mb-6 text-center text-gray-800">Add Product</h1>
+            <form action="/upload" method="post" enctype="multipart/form-data" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Product Name</label>
+                    <input
+                        class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        type="text" placeholder="Name" name="name" required>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Price (in ₹)</label>
+                    <input
+                        class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        type="number" placeholder="Price (in ₹)" name="price" required>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Product Image</label>
+                    <input
+                        class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        type="file" name="file" required>
+                </div>
+
+                <div>
+                    <label for="category" class="block text-sm font-medium text-gray-700">Select Category</label>
+                    <select id="category" name="category"
+                        class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        onchange="updateSubcategories()">
+                        <option value="electronics">Electronics</option>
+                        <option value="mensFashion">Men's Fashion</option>
+                        <option value="womensFashion">Women's Fashion</option>
+                        <option value="kidsFashion">Kids' Fashion</option>
+                        <option value="furniture">Furniture</option>
+                        <option value="groceries">Groceries</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="subcategory" class="block text-sm font-medium text-gray-700">Select Subcategory</label>
+                    <select id="subcategory" name="subcategory"
+                        class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></select>
+                </div>
+
+                <div>
+                    <button type="submit"
+                        class="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Add
+                        Product</button>
+                </div>
+                <a class="text-xl text-red-500" href="/admin/deleteProduct">Delete A
+                    Product?</a>
+            </form>
+        </div>
+        <script>
+            function updateSubcategories() {
+                var categorySelect = document.getElementById('category');
+                var subcategorySelect = document.getElementById('subcategory');
+                var selectedCategory = categorySelect.value;
+
+                // Clear existing options
+                subcategorySelect.innerHTML = '';
+
+                // Add new options based on the selected category
+                switch (selectedCategory) {
+                    case 'electronics':
+                        addSubcategoryOption('mobiles');
+                        addSubcategoryOption('accessories');
+                        addSubcategoryOption('cameras');
+                        addSubcategoryOption('smartGadgets');
+                        addSubcategoryOption('wearables');
+                        break;
+                    case 'mensFashion':
+                        addSubcategoryOption('tshirts');
+                        addSubcategoryOption('pants');
+                        addSubcategoryOption('formals');
+                        addSubcategoryOption('shorts');
+                        addSubcategoryOption('shoes');
+                        addSubcategoryOption('sneakers');
+                        break;
+                    case 'womensFashion':
+                        addSubcategoryOption('sarees');
+                        addSubcategoryOption('kurtis');
+                        addSubcategoryOption('jeans');
+                        addSubcategoryOption('footwears');
+                        addSubcategoryOption('tops');
+                        break;
+                    case 'kidsFashion':
+                        addSubcategoryOption('tshirts');
+                        addSubcategoryOption('pants');
+                        addSubcategoryOption('shoes');
+                        addSubcategoryOption('nightDresses');
+                        break;
+                    case 'furniture':
+                        addSubcategoryOption('kitchen');
+                        addSubcategoryOption('livingRoom');
+                        addSubcategoryOption('dining');
+                        addSubcategoryOption('bedroom');
+                        addSubcategoryOption('smartHome');
+                        break;
+                    case 'groceries':
+                        addSubcategoryOption('dairyProducts');
+                        addSubcategoryOption('fruits');
+                        addSubcategoryOption('vegetables');
+                        addSubcategoryOption('foodsAndDrinks');
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            function addSubcategoryOption(subcategory) {
+                var subcategorySelect = document.getElementById('subcategory');
+                var option = document.createElement('option');
+                option.value = subcategory;
+                option.text = subcategory.charAt(0).toUpperCase() + subcategory.slice(1);
+                subcategorySelect.add(option);
+            }
+        </script>
+        </form>
+        </div>
+        <% include ../partials/footer.ejs %>

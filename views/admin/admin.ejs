@@ -1,0 +1,135 @@
+<% include ../partials/header.ejs %>
+    <div class="flex">
+        <div class="bg-sky-200 text-blue-600 w-1/5 h-screen flex-shrink-0">
+            <div class="p-6">
+                <h1 class="text-2xl text-blue-900 font-bold text-center">Admin Panel</h1>
+            </div>
+            <nav class="flex flex-col items-start justify-center">
+                <a href="/admin/users"
+                    class="block py-2 px-6 text-xl font-semibold hover:bg-blue-800 hover:text-white hover:w-full">Users</a>
+                <a href="/"
+                    class="block py-2 px-6 text-xl font-semibold hover:bg-blue-800 hover:text-white hover:w-full">Home</a>
+                <a href="/admin/products"
+                    class="block py-2 px-6 text-xl font-semibold hover:bg-blue-800 hover:text-white hover:w-full">Products</a>
+                <a href="/admin/orders"
+                    class="block py-2 px-6 text-xl font-semibold hover:bg-blue-800 hover:text-white hover:w-full">Orders</a>
+                <a href="/admin/settings"
+                    class="block py-2 px-6 text-xl font-semibold hover:bg-blue-800 hover:text-white hover:w-full">Settings</a>
+                <a href="/logout"
+                    class="block py-2 px-6 text-xl font-semibold hover:bg-blue-800 hover:text-white hover:w-full">Logout</a>
+            </nav>
+        </div>
+        <div class="flex-1 p-10">
+            <h2 class="text-4xl font-bold">Dashboard</h2>
+            <div class="flex gap-10 my-7 justify-between items-center">
+                <div class="w-2/5 h-36 shadow-lg rounded-3xl bg-red-300 flex flex-wrap items-center justify-evenly">
+                    <div class="flex items-center text-justify">
+                        <i class="fa-solid fa-user-group fa-4x" style="color: #e82c2c;"></i>
+                    </div>
+                    <div class="flex flex-col items-center gap-5 justify-evenly">
+                        <div class="text-3xl font-bold">Users</div>
+                        <div class="text-3xl">
+                            <%= userCount %>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-2/5 h-36 shadow-lg rounded-3xl bg-purple-300 flex items-center justify-evenly">
+                    <div class="flex items-center text-justify">
+                        <i class="fa-solid fa-shirt fa-4x" style="color: #794dff;"></i>
+                    </div>
+                    <div class="flex flex-col items-center gap-5 justify-evenly">
+                        <div class="text-3xl font-bold">Products</div>
+                        <div class="text-3xl">
+                            <%= productCount %>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-2/5 h-36 shadow-lg rounded-3xl bg-green-300 flex items-center justify-evenly">
+                    <div class="flex items-center text-justify">
+                        <i class="fa-solid fa-sack-dollar fa-4x" style="color: #008f64;"></i>
+                    </div>
+                    <div class="flex flex-col items-center gap-5 justify-evenly">
+                        <div class="text-3xl font-bold">Earnings</div>
+                        <div class="text-3xl">
+                            <%= totalEarnings %>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-2/5 h-36 shadow-lg rounded-3xl bg-blue-300 flex items-center justify-evenly">
+                    <div class="flex items-center text-justify">
+                        <i class="fa-solid fa-truck fa-4x" style="color: #3881ff;"></i>
+                    </div>
+                    <div class="flex flex-col items-center gap-5 justify-evenly">
+                        <div class="text-3xl font-bold">Sales</div>
+                        <div class="text-3xl">
+                            <%= totalSales %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex gap-7 items-center justify-between w-4/5">
+                <div class="border-2 mt-7 rounded-3xl">
+                    <canvas height="450" width="750" id="myChart"></canvas>
+                </div>
+                <div class="border-2 mt-7 rounded-3xl">
+                    <canvas height="350" width="450" id="myChart2"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const ctx = document.getElementById('myChart');
+
+        var data = [<%= mensFashion %>, <%= womensFashion %>, <%= kidsFashion %>, <%= electronics %>, <%= groceries %>, <%= furniture %>];
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Men Fashion', 'Women Fashion', 'Kids Fashion', 'Electronics', 'Groceries', 'Furniture'],
+                datasets: [{
+                    label: 'Sales',
+                    data: data,
+                    backgroundColor: '#A05AFF',
+                    borderRadius: 15,
+                    barPercentage: 0.85,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                options: {
+                    maintainAspectRatio: false
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const ctx2 = document.getElementById('myChart2');
+
+        var data2 = [<%= mensFashionP %>, <%= womensFashionP %>, <%= kidsFashionP %>, <%= electronicsP %>, <%= groceriesP %>, <%= furnitureP %>];
+        new Chart(ctx2, {
+            type: 'pie',
+            data: {
+                labels: ['Men Fashion', 'Women Fashion', 'Kids Fashion', 'Electronics', 'Groceries', 'Furniture'],
+                datasets: [{
+                    label: 'Products Sold',
+                    data: data2,
+                    backgroundColor: ['#6050DC', '#D52DB7', '#FF2E7E', '#FF6B45', '#FFAB05', '#1fe074'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                options: {
+                    maintainAspectRatio: false
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+    <% include ../partials/footer.ejs %>

@@ -1,0 +1,50 @@
+<% include ../partials/header.ejs %>
+    <div>
+        <form class="flex" action="/deleteProduct" method="post">
+            <input class="border-black border-2 bg-blue-300 m-2 p-2 w-2/3 justify-self-center rounded-xl px-4 h-10"
+                type="text" name="search" placeholder="Search..." onkeyup="sendData(this)">
+            <div class="bg-white absolute z-10 w-2/3  rounded-xl">
+                <div id="searchResults" class=""></div>
+            </div>
+            <button class="bg-red-300 rounded-lg m-2 p-2" type="submit">Delete Product</button>
+        </form>
+    </div>
+    <script>
+        function sendData(e) {
+            const searchResults = document.getElementById('searchResults');
+            let match = e.value.match(/^[a-zA-z]*/);
+            let match2 = e.value.match(/\s*/);
+            if (match2[0] === e.value) {
+                searchResults.innerHTML = '';
+                return;
+            }
+            if (match[0] === e.value) {
+                fetch('searchProducts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ payload: e.value })
+                }).then(res => res.json()).then(data => {
+                    let payload = data.payload;
+                    searchResults.innerHTML = '';
+                    if (payload.length < 1) {
+                        searchResults.innerHTML = '<p>Nothing found</p>';
+                        return;
+                    }
+                    payload.forEach((item, index) => {
+                        if (index > 0) searchResults.innerHTML += '<hr>';
+                        searchResults.innerHTML += `
+                            <a href="/products/${item._id}" class="flex h-14 items-center hover:bg-sky-100 hover:rounded-xl hover:text-blue-900 px-3 py-2 font-bold hover:font-bold">
+                                <div class="w-10 h-10 overflow-hidden rounded-full mr-10">
+                                    <img class="w-full h-full object-cover" src="/images/uploads/${item.image}"/>
+                                </div>
+                                <p>${item.name}</p>
+                            </a>
+                        `;
+                    });
+                });
+                return;
+            }
+            searchResults.innerHTML = '';
+        }
+    </script>
+    <% include ../partials/footer.ejs %>

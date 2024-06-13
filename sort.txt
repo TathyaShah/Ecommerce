@@ -1,0 +1,29 @@
+1) In .ejs file, add a form for dropdown:
+
+<form action="/sort" method="post">
+    <select name="filter" onchange="this.form.submit()">
+        <option value="" disabled selected>Sort By:</option>
+        <option value="ascending">Prices: Low to High</option>
+        <option value="descending">Prices: High to Low</option>
+    </select>
+</form>
+
+2) in index.js, post request logic:
+
+router.post('/sort', async (req, res) => {
+    try {
+        const username = req.session.passport.user;
+        const filter = req.body.filter;
+        const cart = await cartModel.findOne({ user: username }).populate('products.product');
+        if (filter === 'ascending') {
+        cart.products.sort((a, b) => a.product.price - b.product.price);
+    } else if (filter === 'descending') {
+        cart.products.sort((a, b) => b.product.price - a.product.price);
+    }
+        await cart.save();
+        res.redirect('/cart');
+    } catch (error) {
+        console.error('Error sorting products:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});

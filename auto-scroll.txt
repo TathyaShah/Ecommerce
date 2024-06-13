@@ -1,0 +1,26 @@
+// Get navigated to a particular section of a webpage by clicking on a link, without redirecting to a URL.
+
+1) Make a navbar with links of whatever you want to be navigated to. In 'a' tag, instead of writing /url , just write "#div_id".
+<nav class="fixed top-0 left-0 p-4 bg-gray-800 text-white">
+    <a href="#men" class="block py-2">Men</a>
+    <a href="#women" class="block py-2">Women</a>
+    <a href="#tshirt" class="block py-2">T-shirt</a>
+</nav>
+
+2) Give the div that ID respectively
+<div id="men" class="section h-screen bg-gray-200 p-10">
+    <h2 class="text-3xl font-bold mb-4">Men's Section</h2>
+    <p>This is the content for the Men's section.</p>
+</div>
+
+3) Write script tag code for smooth scrolling:
+<script>
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+</script>

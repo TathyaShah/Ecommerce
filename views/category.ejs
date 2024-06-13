@@ -1,0 +1,60 @@
+<% include ./partials/header.ejs %>
+    <div class="flex flex-col h-full p-10 bg-sky-300 overflow-y-auto">
+        <h1 class="font-extrabold text-3xl mb-5">Best of <%= category.charAt(0).toUpperCase() + category.slice(1) %>
+        </h1>
+
+        <% subcategories.forEach(subcategory=> { %>
+            <a href="/category/<%= category %>/<%= subcategory %>" class="font-extrabold text-2xl mt-5 mb-3">Best of <%=
+                    subcategory.charAt(0).toUpperCase() + subcategory.slice(1) %>
+                    </>
+
+                    <% let productsForSubcategory=products.filter(product=> product.categories.includes(category) &&
+                        product.sub_categories.includes(subcategory)); %>
+
+                        <div class="flex flex-wrap gap-12">
+                            <% productsForSubcategory.slice(0, 10).forEach(product=> { %>
+                                <a href="/category/<%= category %>/<%= subcategory %>/<%= product._id %>">
+                                    <div
+                                        class="cards flex flex-wrap gap-10 mt-5 shadow-lg shadow-black rounded-xl overflow-hidden">
+                                        <div class="relative card bg-slate-100 rounded-xl w-52 h-64 overflow-hidden">
+                                            <div class="bg-red-300 w-full h-3/5">
+                                                <div
+                                                    class="absolute top-[115px] left-3 px-1 flex items-center justify-between text-sky-200 bg-blue-700 border-2 border-blue-200 gap-1 rounded-lg">
+                                                    <% if(product.total_rating){ %>
+                                                        <h1>
+                                                            <%= product.total_rating %>
+                                                        </h1>
+                                                        <% } %>
+                                                            <p><i class="fa-solid fa-star" style="color: #FFD43B;"></i>
+                                                            </p>
+                                                </div>
+                                                <img class="h-full w-full object-cover"
+                                                    src="/images/uploads/<%= product.image %>">
+                                            </div>
+                                            <div class="flex flex-col justify-between h-2/5 p-4 truncate">
+                                                <h1
+                                                    class="text-xl font-semibold text-center overflow-hidden text-ellipsis whitespace-nowrap mb-4 px-2 pb-6">
+                                                    <%= product.name %>
+                                                </h1>
+                                                <div class="flex justify-evenly items-center mb-4 gap-2">
+                                                    <h2 class="text-xl font-semibold">₹<%= product.price %>
+                                                    </h2>
+                                                    <form
+                                                        action="/category/<%=category%>/<%= product.sub_categories %>/<%=product._id%>"
+                                                        method="post">
+                                                        <input type="hidden" name="productId"
+                                                            value="<%= product._id %>">
+                                                        <button type="submit"
+                                                            class="bg-blue-800 text-md font-bold text-blue-100 py-1 px-2 rounded-lg hover:text-blue-900 hover:bg-sky-200 hover:border-blue-900 hover:border-2 text-sm">Add
+                                                            to Cart</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                                <% }); %>
+                        </div>
+                        <% }); %>
+    </div>
+    <% include ./partials/footer.ejs %>
