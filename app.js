@@ -11,7 +11,6 @@ var usersRouter = require('./routes/users');
 const passport = require('passport');
 const flash = require('connect-flash');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const publishable_key = "pk_test_51ObfOoSH4dlrgVdSNbJAVrRUbzkYz79LS7G3RBSYCp3VOpsx3Z9fWQEPRBrTOqngZZ1vBqYmPDI4kCTzMpv5LzTC00C8yGitrR"
 var app = express();
 const dotenv = require('dotenv');
 dotenv.config({ path: "./config.env" });
