@@ -1,3 +1,4 @@
+require('dotenv').config();
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -12,8 +13,6 @@ const passport = require('passport');
 const flash = require('connect-flash');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 var app = express();
-const dotenv = require('dotenv');
-dotenv.config();
 
 passport.use(new GoogleStrategy({
   clientID: process.env.ID,
