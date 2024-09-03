@@ -5,9 +5,6 @@ const cartModel = require("./cart");
 const discountModel = require("./discount");
 const localStrategy = require("passport-local");
 const passport = require("passport");
-const stripe = require("stripe")(
-  "sk_test_51ObfOoSH4dlrgVdSfJrulVDWlTjMx0mFIQjT6FDd9AAZoZBPw1oQVA09hmpUnyhgwcHnMjbIwwvO3wOtLSHuxZ1m00VhkOUEIR"
-);
 const upload = require("./multer");
 const { user } = require("fontawesome");
 
