@@ -13,8 +13,7 @@ const flash = require('connect-flash');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 var app = express();
 const dotenv = require('dotenv');
-dotenv.config({ path: "./config.env" });
-
+dotenv.config();
 
 passport.use(new GoogleStrategy({
   clientID: process.env.ID,
