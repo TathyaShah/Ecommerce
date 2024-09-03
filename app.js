@@ -9,15 +9,17 @@ const expressSession = require('express-session')
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 const passport = require('passport');
-const flash = require('connect-flash')
+const flash = require('connect-flash');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const publishable_key = "pk_test_51ObfOoSH4dlrgVdSNbJAVrRUbzkYz79LS7G3RBSYCp3VOpsx3Z9fWQEPRBrTOqngZZ1vBqYmPDI4kCTzMpv5LzTC00C8yGitrR"
 var app = express();
+const dotenv = require('dotenv');
+dotenv.config({ path: "./config.env" });
 
 
 passport.use(new GoogleStrategy({
-  clientID: '640680871215-212s9h8ertd09fh9t132r7ph09t6d681.apps.googleusercontent.com',
-  clientSecret: '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',
+  clientID: process.env.ID,
+  clientSecret: process.env.SECRET,
   callbackURL: '/auth/google/callback',
   scope: ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
 }, async (accessToken, refreshToken, profile, done) => {
