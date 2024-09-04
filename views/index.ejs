@@ -1,9 +1,9 @@
 <% include ./partials/header.ejs %>
 
-    <div class="h-screen flex overflow-hidden">
+    <div class="h-screen flex flex-col md:flex-row overflow-hidden">
         <!-- Sidebar -->
-        <div class="w-1/5 px-3 py-4 bg-gray-50 dark:bg-gray-800">
-            <div class="text-white flex justify-start items-center py-8 px-5">
+        <div class="w-full md:w-1/5 px-3 py-4 bg-gray-50 dark:bg-gray-800">
+            <div class="text-white flex justify-between items-center py-8 px-5">
                 <button><i class="fa-solid fa-bars fa-xl"></i></button>
             </div>
             <h1 class="bg-sky-100 text-center text-blue-800 font-semibold px-1 py-1 rounded-lg">Filter By Rating:</h1>
@@ -57,18 +57,18 @@
         </div>
 
         <!-- Main Content -->
-        <div class="flex flex-col w-4/5">
+        <div class="flex flex-col w-full md:w-4/5">
             <!-- Navbar -->
-            <div class="bg-sky-200 px-10 py-7">
-                <div class="flex items-center justify-center w-full">
-                    <div class="relative w-2/3">
-                        <input class="border-black border-2 w-2/3 justify-self-center rounded-xl px-4 h-10" type="text"
+            <div class="bg-sky-200 px-5 py-5 md:px-10 md:py-7">
+                <div class="flex flex-col md:flex-row items-center justify-between w-full">
+                    <div class="relative w-full md:w-2/3 mb-4 md:mb-0">
+                        <input class="border-black border-2 w-full justify-self-center rounded-xl px-4 h-10" type="text"
                             name="search" placeholder="Search..." onkeyup="sendData(this)">
-                        <div class="bg-white absolute z-10 w-2/3 rounded-xl">
+                        <div class="bg-white absolute z-10 w-full rounded-xl">
                             <div id="searchResults" class=""></div>
                         </div>
                     </div>
-                    <div class="flex items-center justify-between gap-10">
+                    <div class="flex items-center justify-between gap-4 md:gap-10">
                         <button><i class="fa-solid fa-user fa-xl"></i></button>
                         <a href="/cart"><i class="fa-solid fa-cart-shopping fa-xl"></i></a>
                         <a href="/logout">Logout</a>
@@ -87,16 +87,16 @@
             </div>
 
             <!-- Products Component -->
-            <div class="flex flex-col h-full p-10 bg-sky-300 overflow-y-auto">
+            <div class="flex flex-col h-full p-5 md:p-10 bg-sky-300 overflow-y-auto">
                 <% const categories=["electronics", "mensFashion" ,"womensFashion", "kidsFashion" , "furniture"
                     , "groceries" ]; %>
 
                     <% categories.forEach(category=> { %>
                         <div class="container w-full pt-5 pb-10" id="<%= category %>">
-                            <a href="/category/<%= category %>" class="font-extrabold text-3xl">Best of <%=
+                            <a href="/category/<%= category %>" class="font-extrabold text-2xl md:text-3xl">Best of <%=
                                     category.replace(/([a-z])([A-Z])/g, '$1 $2' ).replace(/^./, str=> str.toUpperCase())
                                     %></a>
-                            <div class="flex flex-wrap gap-12">
+                            <div class="flex flex-wrap gap-6 md:gap-12">
                                 <% let count=0; %>
                                     <% products.forEach(product=> { %>
                                         <% if (product.categories.includes(category) && count < 10) { %>
@@ -104,12 +104,12 @@
                                             <a
                                                 href="/category/<%= category %>/<%= product.sub_categories %>/<%= product._id %>">
                                                 <div
-                                                    class="cards flex flex-wrap gap-10 mt-5 shadow-lg shadow-black rounded-xl overflow-hidden">
+                                                    class="cards flex flex-wrap gap-5 md:gap-10 mt-5 shadow-lg shadow-black rounded-xl overflow-hidden">
                                                     <div
-                                                        class="relative card bg-slate-100 rounded-xl w-52 h-64 overflow-hidden">
+                                                        class="relative card bg-slate-100 rounded-xl w-40 h-52 md:w-52 md:h-64 overflow-hidden">
                                                         <div class="bg-red-300 w-full h-3/5">
                                                             <div
-                                                                class="absolute top-[115px] left-3 px-1 flex items-center justify-between text-sky-200 bg-blue-700 border-2 border-blue-200 gap-1 rounded-lg">
+                                                                class="absolute top-[100px] md:top-[115px] left-3 px-1 flex items-center justify-between text-sky-200 bg-blue-700 border-2 border-blue-200 gap-1 rounded-lg">
                                                                 <% if(product.total_rating){ %>
                                                                     <h1>
                                                                         <%= product.total_rating %>
@@ -123,11 +123,12 @@
                                                         </div>
                                                         <div class="flex flex-col justify-between h-2/5 p-4 truncate">
                                                             <h1
-                                                                class="text-xl font-semibold text-center overflow-hidden text-ellipsis whitespace-nowrap mb-4 px-2 pb-6">
+                                                                class="text-lg md:text-xl font-semibold text-center overflow-hidden text-ellipsis whitespace-nowrap mb-4 px-2 pb-6">
                                                                 <%= product.name %>
                                                             </h1>
                                                             <div class="flex justify-evenly items-center mb-4 gap-2">
-                                                                <h2 class="text-xl font-semibold">₹<%= product.price %>
+                                                                <h2 class="text-lg md:text-xl font-semibold">₹<%=
+                                                                        product.price %>
                                                                 </h2>
                                                                 <form
                                                                     action="/category/<%=category%>/<%= product.sub_categories %>/<%=product._id%>"
@@ -135,7 +136,7 @@
                                                                     <input type="hidden" name="productId"
                                                                         value="<%= product._id %>">
                                                                     <button type="submit"
-                                                                        class="bg-blue-800 text-md font-bold text-blue-100 py-1 px-2 rounded-lg hover:text-blue-900 hover:bg-sky-200 hover:border-blue-900 hover:border-2 text-sm">Add
+                                                                        class="bg-blue-800 text-sm md:text-md font-bold text-blue-100 py-1 px-2 rounded-lg hover:text-blue-900 hover:bg-sky-200 hover:border-blue-900 hover:border-2">Add
                                                                         to Cart</button>
                                                                 </form>
                                                             </div>
@@ -177,13 +178,13 @@
                     payload.forEach((item, index) => {
                         if (index > 0) searchResults.innerHTML += '<hr>';
                         searchResults.innerHTML += `
-                    <a href="/category/${item.categories}/${item.sub_categories}/${item._id}" class="flex h-14 items-center hover:bg-sky-100 hover:rounded-xl hover:text-blue-900 px-3 py-2 font-bold hover:font-bold">
-                        <div class="w-10 h-10 overflow-hidden rounded-full mr-10">
-                            <img class="w-full h-full object-cover" src="/images/uploads/${item.image}"/>
-                        </div>
-                        <p>${item.name}</p>
-                    </a>
-                `;
+                <a href="/category/${item.categories}/${item.sub_categories}/${item._id}" class="flex h-14 items-center hover:bg-sky-100 hover:rounded-xl hover:text-blue-900 px-3 py-2 font-bold hover:font-bold">
+                    <div class="w-10 h-10 overflow-hidden rounded-full mr-10">
+                        <img class="w-full h-full object-cover" src="/images/uploads/${item.image}"/>
+                    </div>
+                    <p>${item.name}</p>
+                </a>
+            `;
                     });
                 });
                 return;
