@@ -12,12 +12,14 @@ var usersRouter = require('./routes/users');
 const passport = require('passport');
 const flash = require('connect-flash');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const localStrategy = require('passport-local').Strategy;
 var app = express();
 
 passport.use(new GoogleStrategy({
   clientID: process.env.ID,
   clientSecret: process.env.SECRET,
-  callbackURL: 'https://ecommerce-ug71.onrender.com/auth/google/callback',
+  callbackURL: '/auth/google/callback',
+  // callbackURL: 'https://ecommerce-ug71.onrender.com/auth/google/callback',
   scope: ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
 }, async (accessToken, refreshToken, profile, done) => {
   const email = profile.emails[0].value;
@@ -61,6 +63,7 @@ app.use(cors())
 app.use(flash());
 app.use(passport.initialize())
 app.use(passport.session())
+passport.use(usersRouter.createStrategy());
 passport.serializeUser(usersRouter.serializeUser())
 passport.deserializeUser(usersRouter.deserializeUser())
 
@@ -71,48 +74,20 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.post('/payment', function (req, res) {
-  stripe.customers.create({
-    email: req.body.stripeEmail,
-    source: req.body.stripeToken,
-    name: 'Tathya Shah',
-    address: {
-      city: 'gurgao',
-      state: 'delhi',
-      country: 'India',
-    }
-  })
-    .then((customer) => {
-      return stripe.charges.create({
-        amount: 7000,
-        description: 'ecommerce',
-        currency: 'inr',
-        customer: customer.id
-      })
-    })
-    .then((charge) => {
-      console.log(charge)
-      res.send('Success')
-    })
-    .catch((err) => {
-      res.send(err)
-    })
-})
-
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
-
-
 // error handler
 app.use(function (err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
+  // Set default error status if not provided
+  const status = err.status || 500;
+
+  // Set locals for message and error; only include stack trace in development mode
+  res.locals.message = err.message || 'Something went wrong';
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 404);
-  res.render('error');
+  // Render the error page with error details
+  res.status(status);
 });
 
 module.exports = app;

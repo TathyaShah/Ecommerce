@@ -6,11 +6,11 @@ const discountModel = require("./discount");
 const localStrategy = require("passport-local");
 const passport = require("passport");
 const upload = require("./multer");
-const { user } = require("fontawesome");
+// const { user } = require("fontawesome");
 
 const router = express.Router();
 
-passport.use(new localStrategy(userModel.authenticate()));
+// passport.use(new localStrategy(userModel.authenticate()));
 
 router.get(
   "/auth/google",
@@ -25,41 +25,43 @@ router.get(
   }
 );
 
+// Register route
 router.post("/register", async (req, res) => {
   const { username, email, password, fullname, mobile } = req.body;
 
   const existingUser = await userModel.findOne({ email });
-  if (existingUser)
-    return res.status(409).json({ message: "Email already exists!" });
-
-  const newUser = new userModel({
-    username,
-    email,
-    fullname,
-    mobile,
-  });
-
-  await userModel.register(newUser, password);
-  res.redirect("/");
-});
-
-router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
-  const user = await userModel.findOne({ email });
-  if (!user || user.password !== password) {
-    return res.render("error");
+  if (existingUser) {
+    req.flash('error', 'Email already exists!');
+    return res.redirect('/register');
   }
 
-  req.login(user, (err) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ message: "Internal Server Error" });
-    }
-    req.flash("success", `Welcome ${user.fullname}`);
-    return res.redirect("/");
-  });
+  try {
+    const newUser = new userModel({
+      username,
+      email,
+      fullname,
+      mobile,
+    });
+
+    await userModel.register(newUser, password); // Passport-local-mongoose handles password hashing
+
+    passport.authenticate("local")(req, res, () => {
+      req.flash('success', 'Registration successful! Welcome.');
+      res.redirect("/");
+    });
+  } catch (error) {
+    console.error(error);
+    req.flash('error', 'Error during registration. Please try again.');
+    res.redirect('/register');
+  }
 });
+
+// Login route
+router.post("/login", passport.authenticate("local", {
+  successRedirect: "/",
+  failureRedirect: "/login",
+})
+);
 
 function isAdmin(req, res, next) {
   if (req.user.role === "admin") {
@@ -91,7 +93,7 @@ router.get("/", isLoggedIn, async (req, res) => {
     res.render("index", { user, products: filteredProducts, successMessage });
   } catch (error) {
     console.error(error);
-    res.status(500).render("error");
+    res.status(500);
   }
 });
 
@@ -675,45 +677,6 @@ router.post("/upload", upload.single("file"), async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
-router.post("/register", async (req, res) => {
-  try {
-    const user = new userModel({
-      username: req.body.username,
-      email: req.body.email,
-      mobile: req.body.mobile,
-      fullname: req.body.name,
-    });
-
-    await userModel.register(user, req.body.password);
-
-    // Create an empty cart for the new user
-    const newCart = await cartModel.create({
-      user: user._id,
-      products: [],
-      discount: 0,
-      // You can add more fields if needed
-    });
-
-    await newCart.save();
-
-    passport.authenticate("local")(req, res, () => {
-      res.redirect("/");
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal Server Error");
-  }
-});
-
-router.post(
-  "/login",
-  passport.authenticate("local", {
-    successRedirect: "/",
-    failureRedirect: "/login",
-  }),
-  (req, res) => { }
-);
 
 router.get("/logout", (req, res, next) => {
   req.logout((err) => {
