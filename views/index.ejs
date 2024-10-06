@@ -79,13 +79,6 @@
                             <% } %>
                     </div>
                 </div>
-                <% if (successMessage) { %>
-                    <div class="flash-message flash-message-success text-black z-100 bg-red">
-                        <p>
-                            <%= successMessage %>
-                        </p>
-                    </div>
-                    <% } %>
             </div>
 
             <!-- Products Component -->
@@ -109,31 +102,42 @@
                                                     class="cards flex flex-wrap gap-5 md:gap-10 mt-5 shadow-lg shadow-black rounded-xl overflow-hidden">
                                                     <div
                                                         class="relative card bg-slate-100 rounded-xl w-40 h-52 md:w-52 md:h-64 overflow-hidden">
-                                                        <div class="bg-red-300 w-full h-3/5">
-                                                            <div
-                                                                class="absolute top-[100px] md:top-[115px] left-3 px-1 flex items-center justify-between text-sky-200 bg-blue-700 border-2 border-blue-200 gap-1 rounded-lg">
-                                                                <% if(product.total_rating){ %>
+                                                        <div class=" w-full h-4/6">
+                                                            <% if(product.total_rating) { %>
+                                                                <div
+                                                                    class="absolute top-[100px] md:top-[135px] left-3 px-1 flex items-center justify-between text-sky-200 bg-blue-700 border-2 border-blue-200 gap-1 rounded-lg">
                                                                     <h1>
                                                                         <%= product.total_rating %>
                                                                     </h1>
-                                                                    <% } %>
-                                                                        <p><i class="fa-solid fa-star"
-                                                                                style="color: #FFD43B;"></i></p>
-                                                            </div>
-                                                            <img class="h-full w-full object-cover"
-                                                                src="/images/uploads/<%= product.image %>">
+                                                                    <p><i class="fa-solid fa-star"
+                                                                            style="color: #FFD43B;"></i></p>
+                                                                </div>
+                                                                <% } %>
+
+                                                                    <% if
+                                                                        (cartProducts.includes(product._id.toString()))
+                                                                        { %>
+                                                                        <div
+                                                                            class="absolute top-[100px] md:top-[148px] right-2 px-1 flex items-center justify-between rounded-lg">
+                                                                            <i class="fa-regular fa-cart-circle-check fa-xl"
+                                                                                style="color: #11d80e;"></i>
+                                                                        </div>
+                                                                        <% } %>
+                                                                            <img class="h-full w-full object-cover"
+                                                                                src="/images/uploads/<%= product.image %>">
                                                         </div>
-                                                        <div class="flex flex-col justify-between h-2/5 p-4 truncate">
+                                                        <div
+                                                            class="flex flex-col justify-between h-2/5 pb-3 pt-2 px-4 truncate">
                                                             <h1
-                                                                class="text-lg md:text-xl font-semibold text-center overflow-hidden text-ellipsis whitespace-nowrap mb-4 px-2 pb-6">
+                                                                class="text-lg md:text-xl font-semibold text-center overflow-hidden text-ellipsis whitespace-nowrap mb-3 px-2 pb-6">
                                                                 <%= product.name %>
                                                             </h1>
-                                                            <div class="flex justify-evenly items-center mb-4 gap-2">
+                                                            <div class="flex justify-evenly items-center pb-6 gap-2">
                                                                 <h2 class="text-lg md:text-xl font-semibold">₹<%=
                                                                         product.price %>
                                                                 </h2>
                                                                 <form
-                                                                    action="/category/<%=category%>/<%= product.sub_categories %>/<%=product._id%>"
+                                                                    action="/category/<%= category %>/<%= product.sub_categories %>/<%= product._id %>"
                                                                     method="post">
                                                                     <input type="hidden" name="productId"
                                                                         value="<%= product._id %>">
@@ -157,45 +161,84 @@
     </div>
 
     <script>
-        const hamburgerBtn = document.getElementById('hamburgerBtn');
-        const closeBtn = document.getElementById('closeBtn');
-        const sidebar = document.getElementById('sidebar');
-        const mainContent = document.getElementById('mainContent');
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
 
-        // Function to open the sidebar
-        const openSidebar = () => {
-            sidebar.classList.remove('-translate-x-full');
-            sidebar.classList.add('translate-x-0');
-            closeBtn.classList.remove('hidden');
-            hamburgerBtn.classList.add('hidden');
-        };
-
-        // Function to close the sidebar
-        const closeSidebar = () => {
-            sidebar.classList.add('-translate-x-full');
-            sidebar.classList.remove('translate-x-0');
-            closeBtn.classList.add('hidden');
-            hamburgerBtn.classList.remove('hidden');
-        };
-
-        // Open sidebar on hamburger button click
-        hamburgerBtn.addEventListener('click', openSidebar);
-
-        // Close sidebar on close button click
-        closeBtn.addEventListener('click', closeSidebar);
-
-        // Close sidebar when clicking outside of it on mobile
-        mainContent.addEventListener('click', (e) => {
-            if (!sidebar.contains(e.target) && !hamburgerBtn.contains(e.target)) {
-                closeSidebar();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+        function sendData(e) {
+            const searchResults = document.getElementById('searchResults');
+            let match = e.value.match(/^[a-zA-z]*/);
+            let match2 = e.value.match(/\s*/);
+            if (match2[0] === e.value) {
+                searchResults.innerHTML = '';
+                return;
             }
-        });
+            if (match[0] === e.value) {
+                fetch('searchProducts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ payload: e.value })
+                }).then(res => res.json()).then(data => {
+                    let payload = data.payload;
+                    searchResults.innerHTML = '';
+                    if (payload.length < 1) {
+                        searchResults.innerHTML = '<p>Nothing found</p>';
+                        return;
+                    }
+                    payload.forEach((item, index) => {
+                        if (index > 0) searchResults.innerHTML += '<hr>';
+                        searchResults.innerHTML += `
+                            <a href="/category/${item.categories}/${item.sub_categories}/${item._id}" class="flex h-14 items-center hover:bg-sky-100 hover:rounded-xl hover:text-blue-900 px-3 py-2 font-bold hover:font-bold">
+                                <div class="w-10 h-10 overflow-hidden rounded-full mr-10">
+                                    <img class="w-full h-full object-cover" src="/images/uploads/${item.image}"/>
+                                </div>
+                                <p>${item.name}</p>
+                            </a>
+                        `;
+                    });
+                });
+                return;
+            }
+            searchResults.innerHTML = '';
+        }
 
-        // Handle sidebar scroll on mobile
-        sidebar.addEventListener('touchmove', (e) => {
-            e.stopPropagation();  // Prevent scrolling the background content
-        });
-
+        const urlParams = new URLSearchParams(window.location.search);
+        const message = urlParams.get('message');
+        if (message === 'RS') {
+            Swal.fire({
+                icon: 'success',
+                title: 'Registration Successful',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+        else if (message === 'AF') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error Rendering Admin Page',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+        else if (message === 'ATC') {
+            Swal.fire({
+                title: 'Item Added to Cart!',
+                icon: 'success',
+                showCancelButton: true,
+                confirmButtonText: 'Go to Cart',
+                cancelButtonText: 'OK',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Redirect to cart page when 'Go to Cart' is clicked
+                    window.location.href = "/cart";
+                }
+            });
+        }
     </script>
-
     <% include ./partials/footer.ejs %>

@@ -28,6 +28,7 @@
     "passport-local-mongoose": "^8.0.0",
     "path": "^0.12.7",
     "stripe": "^14.13.0",
+    "sweetalert2": "^11.14.1",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

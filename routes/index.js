@@ -31,10 +31,9 @@ router.post("/register", async (req, res) => {
 
   const existingUser = await userModel.findOne({ email });
   if (existingUser) {
-    req.flash('error', 'Email already exists!');
-    return res.redirect('/register');
+    const emailExists = "EE";
+    return res.redirect(`/register?message=${emailExists}`);
   }
-
   try {
     const newUser = new userModel({
       username,
@@ -46,20 +45,20 @@ router.post("/register", async (req, res) => {
     await userModel.register(newUser, password); // Passport-local-mongoose handles password hashing
 
     passport.authenticate("local")(req, res, () => {
-      req.flash('success', 'Registration successful! Welcome.');
-      res.redirect("/");
+      const successRegistration = "RS";
+      res.redirect(`/?message=${successRegistration}`);
     });
   } catch (error) {
     console.error(error);
-    req.flash('error', 'Error during registration. Please try again.');
-    res.redirect('/register');
+    const failRegistration = "RF";
+    res.redirect(`/register?message=${failRegistration}`);
   }
 });
 
 // Login route
 router.post("/login", passport.authenticate("local", {
   successRedirect: "/",
-  failureRedirect: "/login",
+  failureRedirect: `/login?message=LF`,
 })
 );
 
@@ -90,10 +89,26 @@ router.get("/", isLoggedIn, async (req, res) => {
       ? products.filter((product) => product.total_rating >= filter)
       : products;
 
-    res.render("index", { user, products: filteredProducts, successMessage });
+    // Fetch the user's cart and get the products in the cart
+    let cartProducts = [];
+
+    if (req.isAuthenticated()) {
+      const cart = await cartModel.findOne({ user: user._id });
+
+      if (cart) {
+        cartProducts = cart.products.map((p) => p.product.toString());
+      }
+    }
+
+    res.render("index", {
+      user,
+      products: filteredProducts,
+      successMessage,
+      cartProducts // Pass the cart products to the view
+    });
   } catch (error) {
     console.error(error);
-    res.status(500);
+    res.status(500).send("Internal Server Error");
   }
 });
 
@@ -225,7 +240,8 @@ router.get("/admin", isAdmin, async (req, res) => {
   } catch (error) {
     console.error("Error rendering admin page:", error);
     // Handle the error appropriately, such as sending an error response
-    res.status(500).send("Error rendering admin page");
+    const adminPageFailed = "AF";
+    res.redirect(`/?message=${adminPageFailed}`)
   }
 });
 
@@ -241,31 +257,14 @@ router.get("/cart", isLoggedIn, async (req, res) => {
   const username = req.session.passport.user;
 
   try {
-    // Find the user and populate the cart field
-    const user = await userModel.findOne({ _id: username }).populate("cart");
-
-    // Check if the user and user.cart exist
-    if (!user || !user.cart) {
-      return res.render("cart", {
-        cartProducts: [],
-        products: [],
-        cart: null,
-        discount: 0,
-        code: null,
-        contains: null,
-      });
-    }
-
-    const cartProducts = user.cart;
-
     // Find the cart associated with the user
     const cart = await cartModel.findOne({ user: username });
 
-    // Check if the cart exists
-    if (!cart) {
+    // Check if the cart exists or has products
+    if (!cart || !cart.products.length) {
       return res.render("cart", {
-        cartProducts,
-        products: [],
+        cartProducts: [],  // Empty cartProducts array
+        products: [],      // Empty products array
         cart: null,
         discount: 0,
         code: null,
@@ -279,8 +278,8 @@ router.get("/cart", isLoggedIn, async (req, res) => {
     const code = req.query.code;
 
     res.render("cart", {
-      cartProducts,
-      products,
+      cartProducts: products,  // Now properly passing the products array
+      products,  // Same products array
       cart,
       discount,
       code,
@@ -428,6 +427,58 @@ router.post("/cart/update", async function (req, res) {
     res.status(500).send("Internal Server Error");
   }
 });
+
+router.post("/category/:categories/:sub_categories/:_id", async function (req, res) {
+  try {
+    const userId = req.session.passport.user;
+    const productId = req.params._id;  // Use req.params._id instead of req.query._id for URL params
+    const product = await productModel.findOne({ _id: productId });
+    const category = product.categories;
+    const subcategory = product.sub_categories;
+    const quantity = 1;  // Default quantity is 1
+
+    let cart = await cartModel.findOne({ user: userId });
+
+    if (!cart) {
+      // If the user doesn't have a cart, create a new one
+      cart = await cartModel.create({
+        user: userId,
+        products: [
+          {
+            product: productId,
+            quantity: quantity,
+            price: product.price,
+            name: product.name,
+            image: product.image,
+          },
+        ],
+      });
+    } else {
+      const productIndex = cart.products.findIndex((product) =>
+        product.product.equals(productId)
+      );
+
+      if (productIndex !== -1) {
+        cart.products[productIndex].quantity += quantity; // Increment quantity instead of resetting it
+      } else {
+        cart.products.push({
+          product: productId,
+          price: product.price,
+          quantity: quantity,
+          name: product.name,
+          image: product.image,
+        });
+      }
+      await cart.save();
+    }
+    const addedToCart = "ATC";
+    res.redirect(`/?message=${addedToCart}`); // Redirect to cart instead of showing error
+  } catch (error) {
+    console.error("Error updating cart:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 
 router.post("/cart/updates", async function (req, res) {
   try {
@@ -619,8 +670,8 @@ router.post("/cart/delete", isLoggedIn, async (req, res) => {
     }
 
     await user.save();
-
-    res.redirect("/cart");
+    const deleteProduct = "DP";
+    res.redirect(`/cart?message=${deleteProduct}`);
   } catch (error) {
     console.error("Error deleting product from cart:", error);
     res.status(500).send("Internal Server Error");

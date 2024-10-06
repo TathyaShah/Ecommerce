@@ -171,6 +171,19 @@
         <% total +=(product.price * product.quantity) %>
           <% }) %>
             <% include ./partials/footer.ejs %>
+
+              <script>
+                const urlParams = new URLSearchParams(window.location.search);
+                const message = urlParams.get('message');
+                if (message === 'DP') {
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Product Removed From Cart',
+                    timer: 2000,
+                    showConfirmButton: false
+                  });
+                }
+              </script>
               <!-- <script>
   function showDiscount(){
     const discount1=document.querySelector('.discount')
@@ -182,4 +195,3 @@
     }
   }
 </script> -->
-              <!-- <script src="https://js.stripe.com/v3/"></script> -->
