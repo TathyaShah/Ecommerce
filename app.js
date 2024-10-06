@@ -18,8 +18,8 @@ var app = express();
 passport.use(new GoogleStrategy({
   clientID: process.env.ID,
   clientSecret: process.env.SECRET,
-  // callbackURL: '/auth/google/callback',
-  callbackURL: 'https://ecommerce-ug71.onrender.com/auth/google/callback',
+  callbackURL: '/auth/google/callback',
+  // callbackURL: 'https://ecommerce-ug71.onrender.com/auth/google/callback',
   scope: ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
 }, async (accessToken, refreshToken, profile, done) => {
   const email = profile.emails[0].value;
