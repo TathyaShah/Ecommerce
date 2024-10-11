@@ -73,41 +73,45 @@
                             <div id="searchResults" class=""></div>
                         </div>
                     </div>
-                    <div class="flex items-center justify-stretch gap-x-8 md:gap-x-10">
-                        <button><i class="fa-solid fa-user fa-xl text-blue-900"></i></button>
-                        <a href="/cart"><i class="fa-solid fa-cart-shopping fa-xl text-blue-900"></i></a>
-                        <a href="/logout" class="text-blue-900">Logout</a>
-                        <% if (user.role==='admin' ) { %>
-                            <a href="/admin" class="text-blue-900">Admin Dashboard</a>
-                            <% } %>
+                    <div class="flex items-center justify-stretch px-5 gap-x-8 md:gap-x-10">
+                        <% if (!user) { %>
+                            <a href="/login" class="text-xl text-blue-900 underline w-full">Login</a>
+                            <a href="/register" class="text-xl text-blue-900 underline w-full">Register</a>
+                            <% } else { %>
+                                <a href="/logout" class="text-xl text-blue-900 underline">Logout</a>
+                                <a href="/cart" class="text-xl text-blue-900 underline w-full">Cart</a>
+                                <% } %>
+                                    <% if (user && user.role==='admin' ) { %>
+                                        <a href="/admin" class="text-xl text-blue-900 underline w-full">
+                                            Dashboard</a>
+                                        <% } %>
                     </div>
                 </div>
             </div>
 
             <!-- Products Component -->
-            <div class="flex flex-col h-full pt-5 px-5 bg-blue-100 overflow-y-auto">
-                <% const categories=["electronics", "mensFashion" ,"womensFashion", "kidsFashion" , "furniture"
+            <div class="flex flex-col h-full pt-5 px-5 md:px-10 bg-blue-100 overflow-y-auto">
+                <% const categories=["electronics", "mensFashion" , "womensFashion" , "kidsFashion" , "furniture"
                     , "groceries" ]; %>
-
                     <% categories.forEach(category=> { %>
-                        <div class="container w-full pt-3 pb-10" id="<%= category %>">
+                        <div class="container w-full px-3 pt-3 pb-10" id="<%= category %>">
                             <a href="/category/<%= category %>"
                                 class="font-extrabold text-2xl md:text-3xl text-blue-900">Best of
                                 <%= category.replace(/([a-z])([A-Z])/g, '$1 $2' ).replace(/^./, str=> str.toUpperCase())
                                     %>
                             </a>
-                            <div class="flex flex-wrap gap-4">
+                            <div class="flex flex-wrap gap-5 md:gap-8">
                                 <% let count=0; %>
                                     <% products.forEach(product=> { %>
                                         <% if (product.categories.includes(category) && count < 10) { %>
                                             <a
                                                 href="/category/<%= category %>/<%= product.sub_categories %>/<%= product._id %>">
                                                 <div
-                                                    class="cards flex flex-wrap gap-5 md:gap-10 mt-5 shadow-lg rounded-xl overflow-hidden bg-blue-50">
+                                                    class="cards flex flex-wrap gap-8 md:gap-10 mt-5 shadow-lg rounded-xl overflow-hidden bg-blue-50">
                                                     <div
                                                         class="relative card rounded-xl w-40 h-52 md:w-48 md:h-60 lg:w-52 lg:h-64 overflow-hidden bg-white">
-                                                        <div class=" w-full h-4/6">
-                                                            <% if(product.total_rating) { %>
+                                                        <div class="w-full h-4/6">
+                                                            <% if (product.total_rating) { %>
                                                                 <div
                                                                     class="absolute top-[100px] md:top-[125px] lg:top-[135px] left-3 px-1 flex items-center justify-between text-blue-200 bg-blue-800 border-2 border-blue-300 gap-1 rounded-lg">
                                                                     <h1>
@@ -117,8 +121,9 @@
                                                                             style="color: #FFD43B;"></i></p>
                                                                 </div>
                                                                 <% } %>
-                                                                    <% if(cartProducts.includes(product._id.toString()))
-                                                                        { %>
+                                                                    <% if (cartProducts &&
+                                                                        cartProducts.includes(product._id.toString())) {
+                                                                        %>
                                                                         <div
                                                                             class="absolute top-[115px] md:top-[138px] lg:top-[148px] right-2 px-1 flex items-center justify-between rounded-lg">
                                                                             <i class="fa-regular fa-cart-circle-check fa-xl"
@@ -145,12 +150,9 @@
                                                                         value="<%= product._id %>">
                                                                     <button type="submit"
                                                                         class="bg-blue-700 text-sm md:text-md font-bold text-white py-1 px-2 rounded-lg hover:bg-blue-900 hover:text-white transition-all ease-in-out duration-300">
-                                                                        <!-- For screen width < 768px -->
                                                                         <span class="block md:hidden">Add</span>
-                                                                        <!-- For screen width >= 768px -->
                                                                         <span class="hidden md:block">Add to Cart</span>
                                                                     </button>
-
                                                                 </form>
                                                             </div>
                                                         </div>
@@ -167,18 +169,16 @@
         </div>
     </div>
 
-
-
     <script>
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
-
                 document.querySelector(this.getAttribute('href')).scrollIntoView({
                     behavior: 'smooth'
                 });
             });
         });
+
         function sendData(e) {
             const searchResults = document.getElementById('searchResults');
             let match = e.value.match(/^[a-zA-z]*/);
@@ -202,13 +202,13 @@
                     payload.forEach((item, index) => {
                         if (index > 0) searchResults.innerHTML += '<hr>';
                         searchResults.innerHTML += `
-                            <a href="/category/${item.categories}/${item.sub_categories}/${item._id}" class="flex h-14 items-center hover:bg-sky-100 hover:rounded-xl hover:text-blue-900 px-3 py-2 font-bold hover:font-bold">
-                                <div class="w-10 h-10 overflow-hidden rounded-full mr-10">
-                                    <img class="w-full h-full object-cover" src="/images/uploads/${item.image}"/>
-                                </div>
-                                <p>${item.name}</p>
-                            </a>
-                        `;
+                    <a href="/category/${item.categories}/${item.sub_categories}/${item._id}" class="flex h-14 items-center hover:bg-sky-100 hover:rounded-xl hover:text-blue-900 px-3 py-2 font-bold hover:font-bold">
+                        <div class="w-10 h-10 overflow-hidden rounded-full mr-10">
+                            <img class="w-full h-full object-cover" src="/images/uploads/${item.image}"/>
+                        </div>
+                        <p>${item.name}</p>
+                    </a>
+                    `;
                     });
                 });
                 return;
@@ -225,16 +225,14 @@
                 timer: 2000,
                 showConfirmButton: false
             });
-        }
-        else if (message === 'AF') {
+        } else if (message === 'AF') {
             Swal.fire({
                 icon: 'error',
                 title: 'Error Rendering Admin Page',
                 timer: 2000,
                 showConfirmButton: false
             });
-        }
-        else if (message === 'ATC') {
+        } else if (message === 'ATC') {
             Swal.fire({
                 title: 'Item Added to Cart!',
                 icon: 'success',
@@ -250,4 +248,5 @@
             });
         }
     </script>
+
     <% include ./partials/footer.ejs %>

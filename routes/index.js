@@ -59,15 +59,13 @@ router.post("/register", async (req, res) => {
 router.post("/login", passport.authenticate("local", {
   successRedirect: "/",
   failureRedirect: `/login?message=LF`,
-})
-);
+}));
 
 function isAdmin(req, res, next) {
-  if (req.user.role === "admin") {
+  if (req.user && req.user.role === "admin") {
     return next();
-  } else {
-    res.redirect("/");
   }
+  res.redirect("/");
 }
 
 function isLoggedIn(req, res, next) {
@@ -77,10 +75,9 @@ function isLoggedIn(req, res, next) {
   res.redirect("/login");
 }
 
-router.get("/", isLoggedIn, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const successMessage = req.flash("success")[0];
-    const user = await userModel.findOne({ _id: req.session.passport.user });
+    const user = req.isAuthenticated() ? await userModel.findOne({ _id: req.session.passport.user }) : null;
     const products = await productModel.find();
 
     // Check if a filter parameter is present in the query
@@ -89,12 +86,10 @@ router.get("/", isLoggedIn, async (req, res) => {
       ? products.filter((product) => product.total_rating >= filter)
       : products;
 
-    // Fetch the user's cart and get the products in the cart
+    // Fetch the user's cart and get the products in the cart if logged in
     let cartProducts = [];
-
     if (req.isAuthenticated()) {
       const cart = await cartModel.findOne({ user: user._id });
-
       if (cart) {
         cartProducts = cart.products.map((p) => p.product.toString());
       }
@@ -103,8 +98,7 @@ router.get("/", isLoggedIn, async (req, res) => {
     res.render("index", {
       user,
       products: filteredProducts,
-      successMessage,
-      cartProducts // Pass the cart products to the view
+      cartProducts, // Pass the cart products to the view
     });
   } catch (error) {
     console.error(error);
@@ -254,17 +248,14 @@ router.get("/admin/deleteProduct", isAdmin, (req, res) => {
 })
 
 router.get("/cart", isLoggedIn, async (req, res) => {
-  const username = req.session.passport.user;
-
   try {
-    // Find the cart associated with the user
+    const username = req.session.passport.user;
     const cart = await cartModel.findOne({ user: username });
 
-    // Check if the cart exists or has products
     if (!cart || !cart.products.length) {
       return res.render("cart", {
-        cartProducts: [],  // Empty cartProducts array
-        products: [],      // Empty products array
+        cartProducts: [], // Empty cartProducts array
+        products: [], // Empty products array
         cart: null,
         discount: 0,
         code: null,
@@ -278,8 +269,8 @@ router.get("/cart", isLoggedIn, async (req, res) => {
     const code = req.query.code;
 
     res.render("cart", {
-      cartProducts: products,  // Now properly passing the products array
-      products,  // Same products array
+      cartProducts: products, // Pass cart products
+      products, // Same products array
       cart,
       discount,
       code,
@@ -318,7 +309,8 @@ router.post("/discount", async function (req, res) {
   }
 });
 
-router.get("/category/:category", isLoggedIn, async (req, res) => {
+// Everyone can access the category page
+router.get("/category/:category", async (req, res) => {
   const category = req.params.category;
   const products = await productModel.find();
   const subcategories = await productModel
@@ -328,6 +320,7 @@ router.get("/category/:category", isLoggedIn, async (req, res) => {
   res.render("category", { subcategories, category, products });
 });
 
+// Everyone can access the subcategory page
 router.get("/category/:category/:subcategory", async function (req, res) {
   const category = req.params.category;
   const subcategory = req.params.subcategory;
@@ -335,54 +328,53 @@ router.get("/category/:category/:subcategory", async function (req, res) {
   res.render("subcategory", { category, products, subcategory });
 });
 
-router.get(
-  "/category/:category/:subcategory/:productId",
-  isLoggedIn,
-  async (req, res) => {
-    try {
-      const username = req.session.passport.user;
-      const productId = req.params.productId;
-      const category = req.params.category;
-      const product = await productModel.findById(productId);
 
-      // Ensure product is found
-      if (!product) {
-        return res.status(404).send("Product not found");
-      }
+router.get("/category/:category/:subcategory/:productId", async (req, res) => {
+  try {
+    const productId = req.params.productId;
+    const category = req.params.category;
+    const product = await productModel.findById(productId);
 
-      const subcategory = product.sub_categories;
-      const rating = product.total_rating;
-      const currentUserId = req.session.passport.user;
-      const userRatingObj = product.rating.find(
-        (ratingObj) => ratingObj.user.toString() === currentUserId.toString()
-      );
+    // Ensure product is found
+    if (!product) {
+      return res.status(404).send("Product not found");
+    }
 
-      let products = null; // Initialize products variable to null
+    const subcategory = product.sub_categories;
+    const rating = product.total_rating;
+    const currentUserId = req.session.passport?.user || null;
+    const userRatingObj = product.rating.find(
+      (ratingObj) => currentUserId && ratingObj.user.toString() === currentUserId.toString()
+    );
 
-      const cart = await cartModel.findOne({ user: username });
+    let products = null; // Initialize products variable to null
+
+    if (currentUserId) {
+      const cart = await cartModel.findOne({ user: currentUserId });
       if (cart && cart.products.length != 0) {
         products = cart.products.find(
           (product) => product.product.toString() === productId
         );
       }
-
-      const userRating = userRatingObj ? userRatingObj.value : null;
-
-      res.render("product", {
-        product,
-        products,
-        category,
-        subcategory,
-        rating,
-        userRating,
-      });
-    } catch (error) {
-      console.error("Error rendering product page:", error);
-      // Handle the error appropriately, such as sending an error response
-      res.status(500).send("Error rendering the product page");
     }
+
+    const userRating = userRatingObj ? userRatingObj.value : null;
+
+    res.render("product", {
+      product,
+      products,
+      category,
+      subcategory,
+      rating,
+      userRating,
+      isLoggedIn: !!currentUserId
+    });
+  } catch (error) {
+    console.error("Error rendering product page:", error);
+    res.status(500).send("Error rendering the product page");
   }
-);
+});
+
 
 
 router.post("/searchProducts", async (req, res) => {
@@ -428,30 +420,25 @@ router.post("/cart/update", async function (req, res) {
   }
 });
 
-router.post("/category/:categories/:sub_categories/:_id", async function (req, res) {
+router.post("/category/:categories/:sub_categories/:_id", isLoggedIn, async function (req, res) {
   try {
     const userId = req.session.passport.user;
-    const productId = req.params._id;  // Use req.params._id instead of req.query._id for URL params
+    const productId = req.params._id;
     const product = await productModel.findOne({ _id: productId });
-    const category = product.categories;
-    const subcategory = product.sub_categories;
-    const quantity = 1;  // Default quantity is 1
+    const quantity = 1; // Default quantity is 1
 
     let cart = await cartModel.findOne({ user: userId });
 
     if (!cart) {
-      // If the user doesn't have a cart, create a new one
       cart = await cartModel.create({
         user: userId,
-        products: [
-          {
-            product: productId,
-            quantity: quantity,
-            price: product.price,
-            name: product.name,
-            image: product.image,
-          },
-        ],
+        products: [{
+          product: productId,
+          quantity,
+          price: product.price,
+          name: product.name,
+          image: product.image,
+        }],
       });
     } else {
       const productIndex = cart.products.findIndex((product) =>
@@ -459,20 +446,20 @@ router.post("/category/:categories/:sub_categories/:_id", async function (req, r
       );
 
       if (productIndex !== -1) {
-        cart.products[productIndex].quantity += quantity; // Increment quantity instead of resetting it
+        cart.products[productIndex].quantity += quantity;
       } else {
         cart.products.push({
           product: productId,
           price: product.price,
-          quantity: quantity,
+          quantity,
           name: product.name,
           image: product.image,
         });
       }
       await cart.save();
     }
-    const addedToCart = "ATC";
-    res.redirect(`/?message=${addedToCart}`); // Redirect to cart instead of showing error
+
+    res.redirect("/?message=ATC"); // Show message when added to cart
   } catch (error) {
     console.error("Error updating cart:", error);
     res.status(500).send("Internal Server Error");
@@ -734,7 +721,7 @@ router.get("/logout", (req, res, next) => {
     if (err) {
       return next(err);
     }
-    res.redirect("/login");
+    res.redirect("/");
   });
 });
 
