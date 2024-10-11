@@ -96,7 +96,7 @@
                                 <%= category.replace(/([a-z])([A-Z])/g, '$1 $2' ).replace(/^./, str=> str.toUpperCase())
                                     %>
                             </a>
-                            <div class="flex flex-wrap gap-8 md:gap-10">
+                            <div class="flex flex-wrap gap-6 md:gap-10">
                                 <% let count=0; %>
                                     <% products.forEach(product=> { %>
                                         <% if (product.categories.includes(category) && count < 10) { %>
