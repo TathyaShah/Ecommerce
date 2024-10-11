@@ -90,7 +90,7 @@
             </div>
 
             <!-- Products Component -->
-            <div class="flex flex-col h-full pt-5 px-5 md:px-10 bg-blue-100 overflow-y-auto">
+            <div class="flex flex-col h-full pt-5 px-3 md:px-10 bg-blue-100 overflow-y-auto">
                 <% const categories=["electronics", "mensFashion" , "womensFashion" , "kidsFashion" , "furniture"
                     , "groceries" ]; %>
                     <% categories.forEach(category=> { %>
@@ -100,7 +100,7 @@
                                 <%= category.replace(/([a-z])([A-Z])/g, '$1 $2' ).replace(/^./, str=> str.toUpperCase())
                                     %>
                             </a>
-                            <div class="flex flex-wrap gap-5 md:gap-8">
+                            <div class="flex flex-wrap gap-3 md:gap-8">
                                 <% let count=0; %>
                                     <% products.forEach(product=> { %>
                                         <% if (product.categories.includes(category) && count < 10) { %>
