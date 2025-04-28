@@ -10,7 +10,7 @@ const upload = require("./multer");
 
 const router = express.Router();
 
-// passport.use(new localStrategy(userModel.authenticate()));
+passport.use(new localStrategy(userModel.authenticate()));
 
 router.get(
   "/auth/google",
