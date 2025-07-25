@@ -1,0 +1,501 @@
+<% include ../partials/header.ejs %>
+    <div class="flex flex-col md:flex-row h-screen overflow-hidden bg-green-50">
+        <!-- Hamburger for mobile -->
+        <button id="sidebarToggle"
+            class="md:hidden absolute top-4 left-4 z-30 bg-green-100 p-2 rounded-lg shadow-lg focus:outline-none hover:bg-green-200 transition-all duration-200">
+            <i class="fa-solid fa-bars text-2xl text-green-800"></i>
+        </button>
+        <!-- Sidebar -->
+        <aside id="adminSidebar"
+            class="fixed md:static top-0 left-0 w-4/5 max-w-xs md:w-1/5 bg-white rounded-b-3xl md:rounded-r-3xl md:rounded-b-none shadow-lg py-6 px-3 md:mr-6 mt-0 md:mt-4 mb-4 md:ml-2 h-full md:h-[95vh] flex-shrink-0 z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col">
+            <!-- Close button for mobile -->
+            <button id="sidebarClose"
+                class="md:hidden absolute top-4 right-4 bg-gray-100 p-2 rounded-lg focus:outline-none">
+                <i class="fa-solid fa-times text-xl text-gray-700"></i>
+            </button>
+            <h1 class="text-2xl text-gray-900 font-bold text-center mb-6 mt-8 md:mt-0">Admin Panel</h1>
+            <nav class="flex flex-col gap-2 flex-1">
+                <a href="/" class="py-2 px-4 rounded-lg text-gray-700 font-semibold hover:bg-gray-100 transition">
+                    <i class="fa-solid fa-house text-lg mr-2"></i>Home</a>
+                <a href="/admin" class="py-2 px-4 rounded-lg text-gray-700 font-semibold hover:bg-gray-100 transition">
+                    <i class="fa-solid fa-chart-line text-lg mr-2"></i>Dashboard</a>
+                <a href="/admin/users"
+                    class="py-2 px-4 rounded-lg text-gray-700 font-semibold hover:bg-gray-100 transition">
+                    <i class="fa-solid fa-user-group text-lg mr-2"></i>Users</a>
+                <a href="/admin/products"
+                    class="py-2 px-4 rounded-lg text-gray-700 font-semibold hover:bg-gray-100 transition">
+                    <i class="fa-solid fa-shirt text-lg mr-2"></i>Products</a>
+                <a href="/admin/orders"
+                    class="flex items-center gap-3 py-3 px-5 rounded-xl font-bold bg-green-100 text-green-700 shadow hover:scale-105 transition-all duration-200">
+                    <i class="fa-solid fa-truck text-lg"></i>Orders</a>
+            </nav>
+            <a href="/logout"
+                class="mt-auto block w-full py-2 px-4 rounded-lg bg-red-500 text-white font-semibold text-center hover:bg-red-600 transition">
+                <i class="fa-solid fa-arrow-right-from-bracket text-lg mr-2"></i>Logout</a>
+        </aside>
+        <!-- Overlay for mobile sidebar -->
+        <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-30 z-30 hidden md:hidden"></div>
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col p-4 md:p-12 h-full overflow-hidden bg-green-50">
+            <div class="max-w-7xl mx-auto">
+                <h1 class="text-3xl font-bold text-gray-900 mb-6">Order Management</h1>
+
+                <!-- Statistics Cards -->
+                <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+                    <div class="bg-white rounded-xl shadow p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-green-700 text-sm font-semibold">Total Orders</div>
+                                <div class="text-2xl font-bold text-gray-900 mt-1">
+                                    <%= totalOrders %>
+                                </div>
+                            </div>
+                            <div class="bg-green-100 p-3 rounded-lg">
+                                <i class="fa-solid fa-shopping-cart text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-blue-700 text-sm font-semibold">Total Revenue</div>
+                                <div class="text-2xl font-bold text-gray-900 mt-1">₹<%= totalRevenue.toLocaleString() %>
+                                </div>
+                            </div>
+                            <div class="bg-blue-100 p-3 rounded-lg">
+                                <i class="fa-solid fa-indian-rupee-sign text-blue-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-yellow-700 text-sm font-semibold">Pending</div>
+                                <div class="text-2xl font-bold text-gray-900 mt-1">
+                                    <%= pendingOrders %>
+                                </div>
+                            </div>
+                            <div class="bg-yellow-100 p-3 rounded-lg">
+                                <i class="fa-solid fa-clock text-yellow-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-green-700 text-sm font-semibold">Completed</div>
+                                <div class="text-2xl font-bold text-gray-900 mt-1">
+                                    <%= completedOrders %>
+                                </div>
+                            </div>
+                            <div class="bg-green-100 p-3 rounded-lg">
+                                <i class="fa-solid fa-check-circle text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-red-700 text-sm font-semibold">Cancelled</div>
+                                <div class="text-2xl font-bold text-gray-900 mt-1">
+                                    <%= cancelledOrders %>
+                                </div>
+                            </div>
+                            <div class="bg-red-100 p-3 rounded-lg">
+                                <i class="fa-solid fa-times-circle text-red-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Filters and Search -->
+                <div class="flex flex-col md:flex-row gap-4 mb-6">
+                    <div class="flex-1">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                                <i class="fa fa-search text-green-300"></i>
+                            </span>
+                            <input type="text" id="orderSearch"
+                                placeholder="Search by customer name, email, or order ID..."
+                                class="pl-10 pr-4 py-2 w-full rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-300 focus:outline-none bg-white text-gray-900 shadow transition"
+                                autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <select id="statusFilter"
+                            class="px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-300 focus:outline-none bg-white text-gray-900 shadow">
+                            <option value="all">All Status</option>
+                            <option value="pending" <%=status==='pending' ? 'selected' : '' %>>Pending</option>
+                            <option value="processing" <%=status==='processing' ? 'selected' : '' %>>Processing</option>
+                            <option value="shipped" <%=status==='shipped' ? 'selected' : '' %>>Shipped</option>
+                            <option value="delivered" <%=status==='delivered' ? 'selected' : '' %>>Delivered</option>
+                            <option value="cancelled" <%=status==='cancelled' ? 'selected' : '' %>>Cancelled</option>
+                        </select>
+
+                    </div>
+                </div>
+
+                <!-- Orders Table -->
+                <div class="overflow-y-hidden rounded-2xl shadow-lg bg-white max-h-[56vh]">
+                    <table class="min-w-full text-left text-sm table-fixed w-full">
+                        <thead class="bg-green-100 text-green-900 block w-full">
+                            <tr class="table w-full">
+                                <th class="py-3 px-4 font-semibold w-[10%]">
+                                    <span class="flex items-center gap-1">
+                                        Order ID
+                                        <a href="?sort=orderId&order=<%= sort === 'orderId' && order === 'asc' ? 'desc' : 'asc' %>"
+                                            class="ml-1">
+                                            <i
+                                                class="fa-solid fa-sort<%= sort === 'orderId' ? (order === 'asc' ? '-up text-green-600' : '-down text-green-600') : '' %>"></i>
+                                        </a>
+                                    </span>
+                                </th>
+                                <th class="py-3 px-4 font-semibold w-[15%]">
+                                    <span class="flex items-center gap-1">
+                                        Customer
+                                        <a href="?sort=customer&order=<%= sort === 'customer' && order === 'asc' ? 'desc' : 'asc' %>"
+                                            class="ml-1">
+                                            <i
+                                                class="fa-solid fa-sort<%= sort === 'customer' ? (order === 'asc' ? '-up text-green-600' : '-down text-green-600') : '' %>"></i>
+                                        </a>
+                                    </span>
+                                </th>
+                                <th class="py-3 px-4 font-semibold w-[25%]">
+                                    <span class="flex items-center gap-1">
+                                        Email
+                                        <a href="?sort=email&order=<%= sort === 'email' && order === 'asc' ? 'desc' : 'asc' %>"
+                                            class="ml-1">
+                                            <i
+                                                class="fa-solid fa-sort<%= sort === 'email' ? (order === 'asc' ? '-up text-green-600' : '-down text-green-600') : '' %>"></i>
+                                        </a>
+                                    </span>
+                                </th>
+                                <th class="py-3 px-4 font-semibold w-[4%]">
+                                    <span class="flex items-center gap-1">
+                                        Items
+                                        <a href="?sort=items&order=<%= sort === 'items' && order === 'asc' ? 'desc' : 'asc' %>"
+                                            class="ml-1">
+                                            <i
+                                                class="fa-solid fa-sort<%= sort === 'items' ? (order === 'asc' ? '-up text-green-600' : '-down text-green-600') : '' %>"></i>
+                                        </a>
+                                    </span>
+                                </th>
+                                <th class="py-3 px-4 font-semibold w-[8%]">
+                                    <span class="flex items-center gap-1">
+                                        Total
+                                        <a href="?sort=totalPrice&order=<%= sort === 'totalPrice' && order === 'asc' ? 'desc' : 'asc' %>"
+                                            class="ml-1">
+                                            <i
+                                                class="fa-solid fa-sort<%= sort === 'totalPrice' ? (order === 'asc' ? '-up text-green-600' : '-down text-green-600') : '' %>"></i>
+                                        </a>
+                                    </span>
+                                </th>
+                                <th class="py-3 px-4 font-semibold w-[8%]">
+                                    <span class="flex items-center gap-1">
+                                        Date
+                                        <a href="?sort=date&order=<%= sort === 'date' && order === 'asc' ? 'desc' : 'asc' %>"
+                                            class="ml-1">
+                                            <i
+                                                class="fa-solid fa-sort<%= sort === 'date' ? (order === 'asc' ? '-up text-green-600' : '-down text-green-600') : '' %>"></i>
+                                        </a>
+                                    </span>
+                                </th>
+                                <th class="py-3 px-4 font-semibold w-[12%]">
+                                    <span class="flex items-center gap-1">
+                                        Status
+                                        <a href="?sort=status&order=<%= sort === 'status' && order === 'asc' ? 'desc' : 'asc' %>"
+                                            class="ml-1">
+                                            <i
+                                                class="fa-solid fa-sort<%= sort === 'status' ? (order === 'asc' ? '-up text-green-600' : '-down text-green-600') : '' %>"></i>
+                                        </a>
+                                    </span>
+                                </th>
+                                <th class="py-3 px-4 font-semibold w-[8%]">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="block overflow-y-auto max-h-[70vh] w-full">
+                            <% orders.forEach(order=> { %>
+                                <tr class="table w-full border-b last:border-0 hover:bg-green-50 transition text-base"
+                                    data-order='<%- JSON.stringify({
+                                        _id: order._id,
+                                        userFullname: order.userFullname,
+                                        userMobile: order.userMobile,
+                                        userEmail: order.userEmail,
+                                        products: order.products,
+                                        totalPrice: order.totalPrice,
+                                        discount: order.discount,
+                                        createdAt: order.createdAt,
+                                        status: order.status
+                                    }) %>' data-order-id="<%= order._id %>">
+                                    <td class="py-4 px-4 w-[10%]">
+                                        <span class="font-mono text-sm bg-gray-100 px-2 py-1 rounded truncate block">
+                                            <%= order._id.toString().slice(-8) %>
+                                        </span>
+                                    </td>
+                                    <td class="py-4 px-4 w-[15%]">
+                                        <div>
+                                            <div class="font-semibold text-gray-900 truncate block">
+                                                <%= order.userFullname %>
+                                            </div>
+                                            <div class="text-sm text-gray-500 truncate block">
+                                                <%= order.userMobile || 'No mobile' %>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 w-[25%]">
+                                        <span class="text-gray-700 truncate block">
+                                            <%= order.userEmail %>
+                                        </span>
+                                    </td>
+                                    <td class="py-4 px-4 w-[4%] text-center">
+                                        <span
+                                            class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm font-semibold truncate block">
+                                            <%= order.products ? order.products.length : 0 %>
+                                        </span>
+                                    </td>
+                                    <td class="py-4 px-4 w-[8%]">
+                                        <div class="font-semibold text-gray-900 truncate block">₹<%=
+                                                order.totalPrice.toLocaleString() %>
+                                        </div>
+                                        <% if (order.discount> 0) { %>
+                                            <div class="text-sm text-green-600 truncate block">-₹<%= order.discount %>
+                                            </div>
+                                            <% } %>
+                                    </td>
+                                    <td class="py-4 px-4 w-[8%]">
+                                        <div class="text-sm text-gray-700 truncate block">
+                                            <%= new Date(order.createdAt).toLocaleDateString() %>
+                                        </div>
+                                        <div class="text-xs text-gray-500 truncate block">
+                                            <%= new Date(order.createdAt).toLocaleTimeString() %>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 w-[12%]">
+                                        <form method="POST" action="/admin/orders/status/<%= order._id %>"
+                                            class="inline">
+                                            <select name="status" onchange="this.form.submit()"
+                                                class="rounded-lg px-2 py-1 border border-gray-200 bg-white text-gray-900 font-semibold focus:ring-2 focus:ring-green-400 focus:outline-none transition text-sm w-full">
+                                                <option value="pending" <%=order.status==='pending' ? 'selected' : '' %>
+                                                    >Pending</option>
+                                                <option value="processing" <%=order.status==='processing' ? 'selected'
+                                                    : '' %>>Processing</option>
+                                                <option value="shipped" <%=order.status==='shipped' ? 'selected' : '' %>
+                                                    >Shipped</option>
+                                                <option value="delivered" <%=order.status==='delivered' ? 'selected'
+                                                    : '' %>>Delivered</option>
+                                                <option value="cancelled" <%=order.status==='cancelled' ? 'selected'
+                                                    : '' %>>Cancelled</option>
+                                            </select>
+                                        </form>
+                                    </td>
+                                    <td class="py-4 px-4 w-[8%]">
+                                        <div class="flex gap-3">
+                                            <button onclick="viewOrderDetails('<%= order._id %>')"
+                                                class="text-green-500 hover:text-green-700 transition">
+                                                <i class="fa-solid fa-eye text-lg"></i>
+                                            </button>
+                                            <form method="POST" action="/admin/orders/delete/<%= order._id %>"
+                                                class="inline delete-order-form">
+                                                <button type="button"
+                                                    class="text-red-500 hover:text-red-700 transition delete-order-btn">
+                                                    <i class="fa-solid fa-trash text-lg"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <% if (orders.length===0) { %>
+                    <div class="text-center py-12">
+                        <i class="fa-solid fa-shopping-cart text-6xl text-gray-300 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-600 mb-2">No Orders Found</h3>
+                        <p class="text-gray-500">There are no orders matching your criteria.</p>
+                    </div>
+                    <% } %>
+            </div>
+        </main>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div id="orderModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Order Details</h2>
+                        <button onclick="closeOrderModal()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fa-solid fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <div id="orderDetailsContent">
+                        <!-- Order details will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <% include ../partials/footer.ejs %>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            // Sidebar toggle logic for mobile
+            const sidebar = document.getElementById('adminSidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarClose = document.getElementById('sidebarClose');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            function openSidebar() {
+                sidebar.classList.remove('-translate-x-full');
+                sidebarOverlay.classList.remove('hidden');
+            }
+
+            function closeSidebar() {
+                sidebar.classList.add('-translate-x-full');
+                sidebarOverlay.classList.add('hidden');
+            }
+
+            sidebarToggle.addEventListener('click', openSidebar);
+            sidebarClose.addEventListener('click', closeSidebar);
+            sidebarOverlay.addEventListener('click', closeSidebar);
+
+            // Status filter
+            document.getElementById('statusFilter').addEventListener('change', function () {
+                const status = this.value;
+                const currentUrl = new URL(window.location);
+                if (status === 'all') {
+                    currentUrl.searchParams.delete('status');
+                } else {
+                    currentUrl.searchParams.set('status', status);
+                }
+                window.location.href = currentUrl.toString();
+            });
+
+            // Dynamic search
+            const searchInput = document.getElementById('orderSearch');
+            const table = document.querySelector('table');
+
+            searchInput.addEventListener('input', function () {
+                const filter = searchInput.value.toLowerCase();
+                const rows = table.querySelectorAll('tbody tr');
+
+                rows.forEach(row => {
+                    // Get text content from each searchable column
+                    const orderId = row.querySelector('td:first-child span').textContent.trim().toLowerCase();
+                    const customerName = row.querySelector('td:nth-child(2) div:first-child').textContent.trim().toLowerCase();
+                    const customerMobile = row.querySelector('td:nth-child(2) div:last-child').textContent.trim().toLowerCase();
+                    const email = row.querySelector('td:nth-child(3) span').textContent.trim().toLowerCase();
+
+                    // Check if any field contains the search term
+                    if (orderId.includes(filter) ||
+                        customerName.includes(filter) ||
+                        customerMobile.includes(filter) ||
+                        email.includes(filter)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+
+            // SweetAlert2 for delete confirmation
+            document.querySelectorAll('.delete-order-btn').forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    const form = btn.closest('form');
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "This action cannot be undone!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, delete order',
+                        background: '#f0fdf4',
+                        color: '#1e293b',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+
+            // Order details modal functions
+            function viewOrderDetails(orderId) {
+                const row = document.querySelector(`tr[data-order-id="${orderId}"]`);
+                if (!row) return;
+                const order = JSON.parse(row.getAttribute('data-order'));
+                const modal = document.getElementById('orderModal');
+                const content = document.getElementById('orderDetailsContent');
+                // Build products table
+                let productsHtml = '';
+                if (order.products && order.products.length > 0) {
+                    productsHtml = `<table class='min-w-full text-left text-sm'><thead><tr><th class='py-2 px-3'>Name</th><th class='py-2 px-3'>Category</th><th class='py-2 px-3'>Qty</th><th class='py-2 px-3'>Price</th><th class='py-2 px-3'>Subtotal</th></tr></thead><tbody>`;
+                    order.products.forEach(p => {
+                        productsHtml += `<tr><td class='py-2 px-3'>${p.name || p.productId?.name || ''}</td><td class='py-2 px-3'>${p.category || ''}</td><td class='py-2 px-3'>${p.quantity}</td><td class='py-2 px-3'>₹${p.price}</td><td class='py-2 px-3'>₹${p.price * p.quantity}</td></tr>`;
+                    });
+                    productsHtml += '</tbody></table>';
+                } else {
+                    productsHtml = '<div class="text-gray-500">No products found.</div>';
+                }
+                content.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h3 class="font-semibold text-gray-900 mb-2">Order Information</h3>
+                            <p><strong>Order ID:</strong> ${order._id.toString().slice(-8)}</p>
+                            <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString()} ${new Date(order.createdAt).toLocaleTimeString()}</p>
+                            <p><strong>Status:</strong> <span class="capitalize">${order.status}</span></p>
+                            <p><strong>Total:</strong> ₹${order.totalPrice.toLocaleString()}</p>
+                            ${order.discount > 0 ? `<p><strong>Discount:</strong> -₹${order.discount}</p>` : ''}
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h3 class="font-semibold text-gray-900 mb-2">Customer Information</h3>
+                            <p><strong>Name:</strong> ${order.userFullname}</p>
+                            <p><strong>Email:</strong> ${order.userEmail}</p>
+                            <p><strong>Mobile:</strong> ${order.userMobile || 'No mobile'}</p>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h3 class="font-semibold text-gray-900 mb-2">Products</h3>
+                            ${productsHtml}
+                        </div>
+                    </div>
+                `;
+                modal.classList.remove('hidden');
+            }
+
+            function closeOrderModal() {
+                document.getElementById('orderModal').classList.add('hidden');
+            }
+
+            // Export orders functionality
+            function exportOrders() {
+                Swal.fire({
+                    title: 'Export Orders',
+                    text: 'This will download all orders as a CSV file',
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonColor: '#10b981',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Export',
+                    background: '#f0fdf4',
+                    color: '#1e293b',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // In a real implementation, you would make an AJAX call to export
+                        Swal.fire('Exported!', 'Orders have been exported successfully.', 'success');
+                    }
+                });
+            }
+
+            // Close modal when clicking outside
+            document.getElementById('orderModal').addEventListener('click', function (e) {
+                if (e.target === this) {
+                    closeOrderModal();
+                }
+            });
+        </script>

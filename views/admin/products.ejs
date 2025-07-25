@@ -1,0 +1,116 @@
+<% include ../partials/header.ejs %>
+    <div class="flex flex-col md:flex-row min-h-screen md:h-screen overflow-y-auto md:overflow-y-hidden bg-red-50">
+        <!-- Sidebar -->
+        <aside id="adminSidebar"
+            class="fixed md:static top-0 left-0 w-4/5 max-w-xs md:w-1/5 bg-white rounded-b-3xl md:rounded-r-3xl md:rounded-b-none shadow-lg py-6 px-3 md:mr-6 mt-0 md:mt-4 mb-4 md:ml-2 h-full md:h-[95vh] flex-shrink-0 z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col">
+            <button id="sidebarClose"
+                class="md:hidden absolute top-4 right-4 bg-gray-100 p-2 rounded-lg focus:outline-none"><i
+                    class="fa-solid fa-times text-xl text-gray-700"></i></button>
+            <h1 class="text-2xl text-gray-900 font-bold text-center mb-6 mt-8 md:mt-0">Admin Panel</h1>
+            <nav class="flex flex-col gap-2 flex-1">
+                <a href="/" class="py-2 px-4 rounded-lg text-gray-700 font-semibold hover:bg-gray-100 transition">
+                    <i class="fa-solid fa-house text-lg mr-2"></i>Home</a>
+                <a href="/admin"
+                    class="py-2 px-4 rounded-lg text-gray-700 font-semibold hover:bg-gray-100 transition"><i
+                        class="fa-solid fa-chart-line text-lg mr-2"></i>Dashboard</a>
+                <a href="/admin/users"
+                    class="py-2 px-4 rounded-lg text-gray-700 font-semibold hover:bg-gray-100 transition"><i
+                        class="fa-solid fa-user-group text-lg mr-2"></i>Users</a>
+                <a href="/admin/products"
+                    class="flex items-center gap-3 py-3 px-5 rounded-xl font-bold bg-pink-100 text-pink-700 shadow hover:scale-105 transition-all duration-200"><i
+                        class="fa-solid fa-shirt text-lg"></i>Products</a>
+                <a href="/admin/orders"
+                    class="py-2 px-4 rounded-lg text-gray-700 font-semibold hover:bg-gray-100 transition"><i
+                        class="fa-solid fa-truck text-lg mr-2"></i>Orders</a>
+            </nav>
+            <a href="/logout"
+                class="mt-auto block w-full py-2 px-4 rounded-lg bg-red-500 text-white font-semibold text-center hover:bg-red-600 transition">
+                <i class="fa-solid fa-arrow-right-from-bracket text-lg mr-2"></i>Logout</a>
+        </aside>
+
+        <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-30 z-30 hidden md:hidden"></div>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col p-4 md:p-12 h-full md:overflow-y-auto overflow-y-auto bg-red-50">
+            <div class="max-w-7xl mx-auto">
+                <h1 class="text-3xl font-bold text-gray-900 mb-8">All Products</h1>
+                <div class="overflow-x-auto rounded-2xl shadow-lg bg-white max-h-[80vh]">
+                    <table class="min-w-full text-left text-sm table-fixed w-full">
+                        <thead class="bg-red-100 text-pink-700 block w-full text-[10px] md:text-sm">
+                            <tr class="table w-full">
+                                <th class="py-3 px-4 font-semibold w-[96px] hidden md:table-cell">Image</th>
+                                <th class="py-3 px-4 font-semibold w-[200px]">Name</th>
+                                <th class="py-3 px-4 font-semibold w-[100px]">Price</th>
+                                <th class="py-3 px-4 font-semibold w-[180px]">Categories</th>
+                                <th class="py-3 px-4 font-semibold w-[180px]">Subcategories</th>
+                                <th class="py-3 px-4 font-semibold w-[140px]">Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="block overflow-y-auto max-h-[70vh] w-full text-[10px] md:text-sm">
+                            <% products.forEach(product=> { %>
+                                <tr class="table w-full border-b last:border-0 hover:bg-pink-50 transition">
+                                    <td class="py-4 px-4 w-[96px] hidden md:table-cell">
+                                        <img src="/images/uploads/<%= product.image %>" alt="<%= product.name %>"
+                                            class="w-16 h-16 object-cover rounded-lg border border-gray-200"
+                                            onerror="this.onerror=null;this.src='/images/uploads/default.png';">
+                                    </td>
+                                    <td class="py-2 md:py-4 px-2 md:px-4 w-[200px] break-words">
+                                        <%= product.name %>
+                                    </td>
+                                    <td class="py-2 md:py-4 px-2 md:px-4 w-[100px] break-words">₹<%= product.price %>
+                                    </td>
+                                    <td class="py-2 md:py-4 px-2 md:px-4 w-[180px] break-words">
+                                        <%= product.categories %>
+                                    </td>
+                                    <td class="py-2 md:py-4 px-2 md:px-4 w-[180px] break-words">
+                                        <%= product.sub_categories %>
+                                    </td>
+                                    <td class="py-2 md:py-4 px-2 md:px-4 w-[140px] break-words">
+                                        <form method="POST" action="/admin/products/delete/<%= product._id %>"
+                                            class="delete-product-form inline">
+                                            <!-- Desktop -->
+                                            <button type="button"
+                                                class="hidden md:inline bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-lg font-semibold text-sm transition delete-product-btn">
+                                                <i class="fa-solid fa-trash mr-1"></i> Delete
+                                            </button>
+                                            <!-- Mobile -->
+                                            <button type="button"
+                                                class="inline md:hidden text-white p-2 rounded-md transition delete-product-btn">
+                                                <i class="fa-solid fa-trash text-red-500"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <% include ../partials/footer.ejs %>
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            document.querySelectorAll('.delete-product-btn').forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    const form = btn.closest('form');
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "This will permanently delete the product!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, delete product',
+                        background: '#fff0f1',
+                        color: '#1e293b',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+        </script>

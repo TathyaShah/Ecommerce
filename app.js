@@ -13,6 +13,7 @@ const passport = require('passport');
 const flash = require('connect-flash');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const localStrategy = require('passport-local').Strategy;
+const userModel = require('./routes/users');
 var app = express();
 
 passport.use(new GoogleStrategy({
@@ -23,23 +24,28 @@ passport.use(new GoogleStrategy({
   scope: ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
 }, async (accessToken, refreshToken, profile, done) => {
   const email = profile.emails[0].value;
-  const existingUser = await usersRouter.findOne({ email });
+  const photo = profile.photos?.[0]?.value;
+
+  let existingUser = await userModel.findOne({ email });
 
   if (existingUser) {
     existingUser.fullname = profile.displayName;
+    existingUser.profile = photo || existingUser.profile || '/images/default-avatar.png';
     await existingUser.save();
     return done(null, existingUser);
   }
 
-  const newUser = new usersRouter({
-    email,
+  // Create a new user if not found
+  const newUser = new userModel({
+    username: email,
+    email: email,
     fullname: profile.displayName,
+    profile: photo || '/images/default-avatar.png',
+    // You can add other fields if needed
   });
-
   await newUser.save();
-  done(null, newUser);
-})
-);
+  return done(null, newUser);
+}));
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
@@ -77,17 +83,16 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
-// error handler
+// Catch 404 and forward to error handler
+app.use(function (req, res, next) {
+  res.status(404);
+  res.render('404');
+});
+
+// Error handler for all other errors
 app.use(function (err, req, res, next) {
-  // Set default error status if not provided
-  const status = err.status || 500;
-
-  // Set locals for message and error; only include stack trace in development mode
-  res.locals.message = err.message || 'Something went wrong';
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // Render the error page with error details
-  res.status(status);
+  res.status(err.status || 500);
+  res.render('404', { message: err.message || 'Something went wrong' });
 });
 
 module.exports = app;

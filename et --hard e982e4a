@@ -1,0 +1,35 @@
+[33m80b6de9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{0}: reset: moving to HEAD~1
+[33me982e4a[m HEAD@{1}: commit: Website enhancement using AI
+[33m80b6de9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{2}: commit: Google login fixed now
+[33m3bd1484[m HEAD@{3}: commit: Google login fixed
+[33mca3e46c[m HEAD@{4}: commit: non-login users acess home
+[33maf85a44[m HEAD@{5}: commit: non-login users can see home page
+[33m56caa63[m HEAD@{6}: commit: home page on phone
+[33ma63fb93[m HEAD@{7}: commit: home page better on phone hopefully
+[33m37f6a09[m HEAD@{8}: commit: home page better on phone
+[33mff7af73[m HEAD@{9}: commit: home page and product page UI improved and responsive
+[33m08743c4[m HEAD@{10}: commit: callback for prev
+[33mec30ba5[m HEAD@{11}: commit: added favicon, improved UI and responsiveness (for login/register page)
+[33m759e62c[m HEAD@{12}: commit: Added message popups on triggers via sweetAlert2 and rating/cart icon shown only if applicable
+[33m7ae597c[m HEAD@{13}: commit: fixed manual login with uri
+[33m1654df3[m HEAD@{14}: pull --rebase origin main (finish): returning to refs/heads/main
+[33m1654df3[m HEAD@{15}: pull --rebase origin main (pick): fixed manual login
+[33m92a659f[m HEAD@{16}: pull --rebase origin main (start): checkout 92a659f947fd08262d3cb07d09bb2def16146d72
+[33m8c4e3c7[m HEAD@{17}: commit: fixed manual login
+[33m3a8a25d[m HEAD@{18}: reset: moving to 3a8a25d
+[33m3a8a25d[m HEAD@{19}: reset: moving to 3a8a25d
+[33m92a659f[m HEAD@{20}: commit: menu bar fixed
+[33mec05842[m HEAD@{21}: commit: responsive menu bar fixed
+[33ma3fc798[m HEAD@{22}: commit: responsive home page
+[33m3a8a25d[m HEAD@{23}: commit: removed error
+[33m2a40120[m HEAD@{24}: commit: removed console
+[33m8e4cc24[m HEAD@{25}: commit: mostly done please
+[33mc5f0f61[m HEAD@{26}: commit: mostly done now
+[33m2bbe972[m HEAD@{27}: commit: local
+[33m140a5fe[m HEAD@{28}: commit: Changes to dotenv
+[33ma0a6dc9[m HEAD@{29}: commit: gitignore added
+[33m2210543[m HEAD@{30}: commit: callback updated
+[33m6e44278[m HEAD@{31}: commit: callback updated
+[33m0a33543[m HEAD@{32}: commit: updated callback
+[33mb248b11[m HEAD@{33}: checkout: moving from main to main
+[33mb248b11[m HEAD@{34}: commit (initial): Done

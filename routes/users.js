@@ -4,7 +4,7 @@ const plm = require("passport-local-mongoose");
 mongoose.connect("mongodb+srv://tathyashah1130:darket1826@cluster0.xrvdy9i.mongodb.net/");
 
 const userSchema = mongoose.Schema({
-  username: String,
+  username: { type: String, required: true, unique: true },
   password: String,
   email: { type: String, required: true, unique: true },
   fullname: String,
@@ -53,6 +53,11 @@ const userSchema = mongoose.Schema({
         type: Date,
         default: Date.now,
       },
+      status: {
+        type: String,
+        enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
+        default: 'pending'
+      },
     },
   ],
   role: {
@@ -60,6 +65,10 @@ const userSchema = mongoose.Schema({
     enum: ["admin", "user"],
     default: "user",
   },
+  profile: {
+    type: String,
+    default: '/images/default-avatar.png'
+  }
 });
 
 userSchema.plugin(plm, { usernameField: 'email' });

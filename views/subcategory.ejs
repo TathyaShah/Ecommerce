@@ -1,48 +1,78 @@
 <% include ./partials/header.ejs %>
-    <div class="flex flex-col h-screen p-10 bg-blue-200 overflow-y-auto">
-        <h1 class="text-3xl font-bold">
-            <%= subcategory.charAt(0).toUpperCase() + subcategory.slice(1) %>
-        </h1>
-        <div class="flex flex-wrap gap-12">
-            <% products.forEach(product=>{ %>
-                <a href="/category/<%= category %>/<%= subcategory %>/<%= product._id %>">
-                    <div class="cards flex flex-wrap gap-10 mt-5 shadow-lg shadow-black rounded-xl overflow-hidden">
-                        <div class="relative card bg-slate-100 rounded-xl w-52 h-64 overflow-hidden">
-                            <div class="bg-red-300 w-full h-3/5">
-                                <div
-                                    class="absolute top-[115px] left-3 px-1 flex items-center justify-between text-sky-200 bg-blue-700 border-2 border-blue-200 gap-1 rounded-lg">
-                                    <% if(product.total_rating){ %>
-                                        <h1>
+    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
+        <!-- Breadcrumbs -->
+        <nav class="max-w-7xl mx-auto px-4 py-4 text-base sm:text-lg font-semibold text-blue-800 flex items-center gap-2"
+            aria-label="Breadcrumb">
+            <ol class="list-reset flex items-center">
+                <li><i class="fa-solid fa-house text-blue-400 mr-1"></i><a href="/" class="hover:underline">Home</a>
+                </li>
+                <li><span class="mx-2 text-blue-300">/</span></li>
+                <li><a href="/category/<%= category %>" class="hover:underline flex items-center"><i
+                            class="fa-solid fa-layer-group text-blue-400 mr-1"></i>
+                        <%= category.charAt(0).toUpperCase() + category.slice(1) %>
+                    </a></li>
+                <li><span class="mx-2 text-blue-300">/</span></li>
+                <li class="text-blue-900 font-bold flex items-center"><i
+                        class="fa-solid fa-cube text-blue-400 mr-1"></i>
+                    <%= subcategory.charAt(0).toUpperCase() + subcategory.slice(1) %>
+                </li>
+            </ol>
+        </nav>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 relative">
+            <!-- Decorative SVG background -->
+            <svg class="absolute right-0 top-0 w-32 h-32 opacity-10 text-blue-200 pointer-events-none select-none hidden md:block"
+                fill="currentColor" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="50" />
+            </svg>
+            <h1 class="font-extrabold text-2xl sm:text-3xl mb-2 text-blue-900 flex items-center gap-2">
+                <i class="fa-solid fa-cube text-blue-400"></i>
+                <%= subcategory.charAt(0).toUpperCase() + subcategory.slice(1) %>
+            </h1>
+            <p class="mb-6 text-blue-700 text-base sm:text-lg font-medium">Explore the best products in this
+                subcategory. Find your favorites!</p>
+            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-6 px-4">
+                <% products.forEach(product=>{ %>
+                    <div
+                        class="bg-white w-full h-fit rounded-2xl border border-blue-100 shadow-lg hover:shadow-xl hover:border-blue-200 transition-all duration-300 overflow-hidden flex flex-col">
+                        <a href="/category/<%= category %>/<%= subcategory %>/<%= product._id %>">
+                            <div class="relative">
+                                <img class="w-full h-28 xs:h-32 sm:h-36 md:h-40 object-cover"
+                                    src="/images/uploads/<%= product.image %>" alt="<%= product.name %>">
+                                <% if(product.total_rating){ %>
+                                    <div
+                                        class="absolute top-3 left-3 bg-blue-600 text-white px-1 py-0.5 rounded text-xs font-medium flex items-center">
+                                        <span class="mr-1">
                                             <%= product.total_rating %>
-                                        </h1>
-                                        <% } %>
-                                            <p><i class="fa-solid fa-star" style="color: #FFD43B;"></i>
-                                            </p>
-                                </div>
-                                <img class="h-full w-full object-cover" src="/images/uploads/<%= product.image %>">
+                                        </span>
+                                        <i class="fa-solid fa-star text-yellow-300 text-xs"></i>
+                                    </div>
+                                    <% } %>
                             </div>
-                            <div class="flex flex-col justify-between h-2/5 p-4 truncate">
+                            <div class="px-3 py-2 sm:px-2.5 sm:py-2.5">
                                 <h1
-                                    class="text-xl font-semibold text-center overflow-hidden text-ellipsis whitespace-nowrap mb-4 px-2 pb-6">
+                                    class="font-semibold text-gray-900 mb-1.5 text-sm sm:text-base truncate whitespace-nowrap overflow-hidden">
                                     <%= product.name %>
                                 </h1>
-                                <div class="flex justify-evenly items-center mb-4 gap-2">
-                                    <h2 class="text-xl font-semibold">₹<%= product.price %>
-                                    </h2>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm sm:text-base font-bold text-blue-600">₹<%= product.price %>
+                                            </span>
                                     <form
                                         action="/category/<%=category%>/<%= product.sub_categories %>/<%=product._id%>"
                                         method="post">
                                         <input type="hidden" name="productId" value="<%= product._id %>">
                                         <button type="submit"
-                                            class="bg-blue-800 text-md font-bold text-blue-100 py-1 px-2 rounded-lg hover:text-blue-900 hover:bg-sky-200 hover:border-blue-900 hover:border-2 text-sm">Add
-                                            to Cart</button>
+                                            class="sm:bg-blue-600 sm:text-white sm:rounded sm:px-3 sm:py-1.5 text-xs xs:text-sm font-medium hover:sm:bg-blue-700 transition-colors flex items-center justify-center">
+                                            <span class="sm:hidden"><i
+                                                    class="fa-solid fa-cart-plus text-blue-600 text-lg"></i></span>
+                                            <span class="hidden sm:inline">Add to Cart</span>
+                                        </button>
                                     </form>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
-                </a>
-                <% }) %>
+                    <% }) %>
+            </div>
         </div>
     </div>
     <% include ./partials/footer.ejs %>

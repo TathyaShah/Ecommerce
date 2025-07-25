@@ -1,116 +1,206 @@
 <% include ./partials/header.ejs %>
 
-    <div class="flex justify-between items-center py-4 px-6 bg-blue-100 shadow-lg">
-        <a href="/" class="text-2xl text-blue-600"><i class="fa-solid fa-arrow-left"></i></a>
-        <a href="/cart" class="text-blue-600 relative">
-            <i class="fa-solid fa-cart-shopping fa-xl"></i>
-        </a>
-    </div>
+    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 pb-10">
+        <!-- Breadcrumbs -->
+        <nav class="max-w-full mx-auto px-4 pt-6 pb-2 text-base sm:text-lg font-semibold text-blue-800 flex items-center gap-2"
+            aria-label="Breadcrumb">
+            <ol class="list-reset flex items-center">
+                <li><i class="fa-solid fa-house text-blue-400 mr-1"></i><a href="/" class="hover:underline">Home</a>
+                </li>
+                <li><span class="mx-2 text-blue-300">/</span></li>
+                <li><a href="/category/<%= product.categories %>" class="hover:underline flex items-center"><i
+                            class="fa-solid fa-layer-group text-blue-400 mr-1"></i>
+                        <%= product.categories.charAt(0).toUpperCase() + product.categories.slice(1) %>
+                    </a></li>
+                <li><span class="mx-2 text-blue-300">/</span></li>
+                <li class="text-blue-900 font-bold flex items-center"><i
+                        class="fa-solid fa-cube text-blue-400 mr-1"></i>
+                    <%= product.name %>
+                </li>
+            </ol>
+        </nav>
 
-    <div class="flex flex-col lg:flex-row gap-10 m-8 pt-12 items-center justify-center">
-        <!-- Product Image -->
-        <div class="shadow-xl rounded-xl overflow-hidden w-full lg:w-[40%] h-[28rem]">
-            <img class="w-full h-full object-cover" src="/images/uploads/<%= product.image %>"
-                alt="<%= product.name %>">
-        </div>
-
-        <!-- Product Details -->
-        <div class="w-full lg:w-[50%] gap-8">
-            <h1 class="font-bold text-4xl text-blue-900 mb-4">
-                <%= product.name %>
-            </h1>
-            <p class="text-blue-800 text-lg mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quod dolores
-                ratione officia unde culpa magnam perferendis.</p>
-
-            <!-- Product Rating -->
-            <div class="pb-10">
-                <% if (isLoggedIn) { %>
-                    <form action="/rating" method="post">
-                        <input type="hidden" name="category" value="<%= product.categories %>">
-                        <input type="hidden" name="subcategory" value="<%= product.sub_categories %>">
-                        <input type="hidden" name="productId" value="<%= product._id %>">
-
-                        <% if (!userRating) { %>
-                            <% for (let j=1; j < 6; j++) { %>
-                                <button onclick="this.form.submit()" value="<%= j %>" name="rating">
-                                    <i class="fa-regular fa-star text-blue-500"></i>
-                                </button>
+        <div class="max-w-full mx-auto mt-4 px-4">
+            <div
+                class="bg-white rounded-3xl shadow-xl flex flex-col lg:flex-row gap-10 p-6 sm:p-10 relative overflow-hidden">
+                <!-- Decorative SVG -->
+                <svg class="absolute right-0 top-0 w-40 h-40 opacity-10 text-blue-200 pointer-events-none select-none hidden md:block"
+                    fill="currentColor" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="50" />
+                </svg>
+                <!-- Product Image -->
+                <div class="w-full lg:w-1/3 flex items-center justify-center">
+                    <img class="w-full max-h-[28rem] object-contain rounded-xl"
+                        src="/images/uploads/<%= product.image %>" alt="<%= product.name %>">
+                </div>
+                <!-- Product Details and Purchase/Rating Controls Side by Side -->
+                <div class="w-full lg:w-2/3 flex flex-col gap-8 justify-between">
+                    <!-- Product Details (top) -->
+                    <div class="flex-1 flex flex-col gap-6 justify-between">
+                        <h1 class="font-extrabold text-2xl sm:text-3xl text-blue-900 mb-2">
+                            <%= product.name %>
+                        </h1>
+                        <div class="flex items-center gap-3 mb-3">
+                            <% if (product.total_rating) { %>
+                                <div
+                                    class="bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium flex items-center">
+                                    <span class="mr-1">
+                                        <%= product.total_rating %>
+                                    </span>
+                                    <i class="fa-solid fa-star text-yellow-300 text-xs"></i>
+                                </div>
                                 <% } %>
-                                    <% } else { %>
-                                        <% for (let j=1; j <=userRating; j++) { %>
-                                            <button onclick="this.form.submit()" value="<%= j %>" name="rating">
-                                                <i class="fa-solid fa-star text-yellow-400"></i>
-                                            </button>
-                                            <% } %>
-                                                <% for (let j=userRating + 1; j < 6; j++) { %>
-                                                    <button onclick="this.form.submit()" value="<%= j %>" name="rating">
-                                                        <i class="fa-regular fa-star text-blue-500"></i>
-                                                    </button>
+                                    <span class="text-blue-700 text-sm">(
+                                        <% if (product.total_rating) { %>
+                                            <%= product.total_rating %> / 5
+                                                <% } else { %>
+                                                    No ratings yet
                                                     <% } %>
-                                                        <% } %>
-                    </form>
-                    <% } else { %>
-                        <a href="/login" class="text-blue-500 text-xl underline">Login to rate this product</a>
-                        <% } %>
-            </div>
-
-            <!-- Product Price -->
-            <h2 class="text-3xl text-blue-900 font-semibold mb-10">₹ <%= product.price %>.00</h2>
-
-            <!-- Add to Cart Form -->
-            <div class="mb-10">
-                <% if (isLoggedIn) { %>
-                    <form action="/cart/updates?productId=<%= product._id %>" method="post"
-                        class="flex lg:flex-row items-center justify-between gap-4">
-                        <input type="hidden" name="prod" value="<%= product._id %>">
-
-                        <div class="flex items-center gap-3 ">
-                            <label for="quantity" class="text-lg font-semibold text-blue-800">Quantity:</label>
-                            <select name="quantity"
-                                class="py-2 px-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 w-auto">
-                                <% if (products) { %>
-                                    <option value="" disabled selected>
-                                        <%= products.quantity %>
-                                    </option>
-                                    <% } %>
-                                        <% for (let j=1; j <=10; j++) { %>
-                                            <option value="<%= j %>">
-                                                <%= j %>
-                                            </option>
-                                            <% } %>
-                            </select>
+                                                        )
+                                    </span>
                         </div>
-
-                        <% if (products) { %>
-                            <button type="submit"
-                                class="lg:w-auto bg-blue-700 text-white py-2 px-3 rounded-lg hover:bg-blue-800 transition duration-300">
-                                Update Qty
-                            </button>
-                            <p class="text-green-600 font-semibold text-lg lg:w-auto text-center lg:text-left">
-                                Product in the cart
-                            </p>
-                            <% } else { %>
-                                <button type="submit"
-                                    class="w-full lg:w-auto bg-blue-700 text-white py-2 px-4 rounded-lg hover:bg-blue-800 transition duration-300">
-                                    Add to Cart
-                                </button>
+                        <p class="text-blue-800 text-base mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                            Quod dolores ratione officia unde culpa magnam perferendis.</p>
+                        <!-- Product Highlights -->
+                        <ul class="mb-4 text-blue-700 text-sm list-disc list-inside space-y-1">
+                            <li>100% Genuine Product Guarantee</li>
+                            <li>Fast & Free Delivery</li>
+                            <li>Easy 7-day Return Policy</li>
+                            <li>Secure Payment Options</li>
+                        </ul>
+                    </div>
+                    <!-- Purchase Controls and Rating (side by side) -->
+                    <div class="flex flex-col lg:flex-row gap-8 w-full">
+                        <!-- Purchase Controls (left) -->
+                        <div class="flex flex-col gap-6 w-1/2">
+                            <!-- Product Price -->
+                            <h2 class="text-3xl text-blue-900 font-semibold mb-2">₹ <%= product.price %>.00</h2>
+                            <!-- Add to Cart Form -->
+                            <div class="mb-2">
+                                <% if (isLoggedIn) { %>
+                                    <form action="/cart/updates?productId=<%= product._id %>" method="post"
+                                        class="flex flex-col sm:flex-row items-center gap-4">
+                                        <input type="hidden" name="prod" value="<%= product._id %>">
+                                        <div class="flex items-center gap-3 ">
+                                            <label for="quantity"
+                                                class="text-base font-semibold text-blue-800">Quantity:</label>
+                                            <select name="quantity"
+                                                class="py-2 px-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 w-auto">
+                                                <% if (products) { %>
+                                                    <option value="" disabled selected>
+                                                        <%= products.quantity %>
+                                                    </option>
+                                                    <% } %>
+                                                        <% for (let j=1; j <=10; j++) { %>
+                                                            <option value="<%= j %>">
+                                                                <%= j %>
+                                                            </option>
+                                                            <% } %>
+                                            </select>
+                                        </div>
+                                        <% if (products) { %>
+                                            <button type="submit"
+                                                class="bg-blue-700 text-white py-2 px-4 rounded-lg hover:bg-blue-800 transition duration-300 w-full sm:w-auto">Update
+                                                Qty</button>
+                                            <p class="text-green-600 font-semibold text-base text-center sm:text-left">
+                                                Product in the cart</p>
+                                            <% } else { %>
+                                                <button type="submit"
+                                                    class="bg-blue-700 text-white py-2 px-4 rounded-lg hover:bg-blue-800 transition duration-300 w-full sm:w-auto">Add
+                                                    to Cart</button>
+                                                <% } %>
+                                    </form>
+                                    <% } else { %>
+                                        <a href="/login"
+                                            class="block text-center bg-blue-700 text-white py-3 px-4 rounded-xl hover:bg-blue-800 transition duration-300">Login
+                                            to Add to Cart</a>
+                                        <% } %>
+                            </div>
+                            <!-- Buy Now Button -->
+                            <% if (isLoggedIn) { %>
+                                <a href="/cart"
+                                    class="w-full block bg-blue-900 text-white py-3 rounded-full text-center hover:bg-blue-800 transition duration-300 font-semibold">Buy
+                                    This Product</a>
                                 <% } %>
-                    </form>
-                    <% } else { %>
-                        <a href="/login"
-                            class="block text-center bg-blue-700 text-white py-3 px-4 rounded-xl hover:bg-blue-800 transition duration-300">
-                            Login to Add to Cart
-                        </a>
-                        <% } %>
+                        </div>
+                        <!-- Product Rating (right) -->
+                        <div class="flex flex-col w-full lg:w-1/2 xl:w-2/5">
+                            <% if (isLoggedIn) { %>
+                                <div
+                                    class="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center border border-blue-100">
+                                    <h3 class="text-lg font-bold text-blue-900 mb-2 flex items-center gap-2">
+                                        <i class="fa-solid fa-star text-yellow-400"></i> Rate this Product
+                                    </h3>
+                                    <form id="ratingForm" action="/rating" method="post"
+                                        class="flex flex-col items-center gap-3 w-full">
+                                        <input type="hidden" name="category" value="<%= product.categories %>">
+                                        <input type="hidden" name="subcategory" value="<%= product.sub_categories %>">
+                                        <input type="hidden" name="productId" value="<%= product._id %>">
+                                        <input type="hidden" id="selectedRating" name="rating"
+                                            value="<%= userRating || 0 %>">
+                                        <div class="flex items-center gap-1 text-2xl mb-2" id="starContainer">
+                                            <% for (let j=1; j <=5; j++) { %>
+                                                <button type="button" class="star-btn focus:outline-none"
+                                                    data-value="<%= j %>">
+                                                    <% if (userRating && j <=userRating) { %>
+                                                        <i class="fa-solid fa-star text-yellow-400"></i>
+                                                        <% } else { %>
+                                                            <i class="fa-regular fa-star text-blue-400"></i>
+                                                            <% } %>
+                                                </button>
+                                                <% } %>
+                                        </div>
+                                        <button type="submit"
+                                            class="mt-2 bg-blue-700 text-white py-2 px-6 rounded-lg hover:bg-blue-800 transition font-semibold shadow">Post
+                                            Rating</button>
+                                        <% if (userRating) { %>
+                                            <p class="text-green-600 text-sm mt-1">You rated this product <span
+                                                    id="userRatingDisplay">
+                                                    <%= userRating %>
+                                                </span>/5</p>
+                                            <% } %>
+                                    </form>
+                                </div>
+                                <script>
+                                    // Star rating selection logic
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        const stars = document.querySelectorAll('.star-btn');
+                                        const selectedRating = document.getElementById('selectedRating');
+                                        const userRatingDisplay = document.getElementById('userRatingDisplay');
+                                        stars.forEach((star, idx) => {
+                                            star.addEventListener('click', function () {
+                                                const rating = this.getAttribute('data-value');
+                                                selectedRating.value = rating;
+                                                // Update star UI
+                                                stars.forEach((s, i) => {
+                                                    const icon = s.querySelector('i');
+                                                    if (i < rating) {
+                                                        icon.classList.remove('fa-regular', 'text-blue-400');
+                                                        icon.classList.add('fa-solid', 'text-yellow-400');
+                                                    } else {
+                                                        icon.classList.remove('fa-solid', 'text-yellow-400');
+                                                        icon.classList.add('fa-regular', 'text-blue-400');
+                                                    }
+                                                });
+                                                if (userRatingDisplay) userRatingDisplay.textContent = rating;
+                                            });
+                                        });
+                                    });
+                                </script>
+                                <% } else { %>
+                                    <div
+                                        class="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center border border-blue-100">
+                                        <h3 class="text-lg font-bold text-blue-900 mb-2 flex items-center gap-2">
+                                            <i class="fa-solid fa-star text-yellow-400"></i> Rate this Product
+                                        </h3>
+                                        <a href="/login" class="text-blue-500 text-base underline">Login to rate this
+                                            product</a>
+                                    </div>
+                                    <% } %>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <!-- Buy Now Button -->
-            <% if (isLoggedIn) { %>
-                <a href="/cart"
-                    class="w-full block bg-blue-900 text-white py-3 rounded-full text-center hover:bg-blue-800 transition duration-300">
-                    Buy This Product
-                </a>
-                <% } %>
         </div>
     </div>
 

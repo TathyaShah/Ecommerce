@@ -1,11 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>404 Not Found</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+        }
+
+        .bounce {
+            animation: bounce 1.5s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .btn-home {
+            background: #2563eb;
+            color: #fff;
+            padding: 0.75rem 2rem;
+            border-radius: 9999px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            margin-top: 2rem;
+            box-shadow: 0 2px 8px 0 #60a5fa33;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .btn-home:hover {
+            background: #1d4ed8;
+        }
+
+        .subtitle {
+            color: #2563eb;
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .main-title {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #0ea5e9;
+            margin-bottom: 0.5rem;
+        }
+
+        .emoji {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+    </style>
 </head>
+
 <body>
-    error 404
+    <div class="bounce">
+        <!-- Playful SVG illustration -->
+        <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="90" cy="150" rx="60" ry="15" fill="#bae6fd" />
+            <circle cx="90" cy="80" r="60" fill="#38bdf8" />
+            <ellipse cx="70" cy="70" rx="8" ry="12" fill="#fff" />
+            <ellipse cx="110" cy="70" rx="8" ry="12" fill="#fff" />
+            <ellipse cx="70" cy="74" rx="3" ry="5" fill="#0ea5e9" />
+            <ellipse cx="110" cy="74" rx="3" ry="5" fill="#0ea5e9" />
+            <path d="M70 110 Q90 130 110 110" stroke="#fff" stroke-width="5" fill="none" />
+            <circle cx="60" cy="60" r="4" fill="#fff" />
+            <circle cx="120" cy="60" r="4" fill="#fff" />
+        </svg>
+    </div>
+    <div class="main-title">404</div>
+    <div class="subtitle">Oops! The page you're looking for doesn't exist.</div>
+    <% if (typeof message !=='undefined' && message) { %>
+        <div style="color:#ef4444; font-size:1.1rem; margin-bottom:1rem; text-align:center; font-weight:500;">
+            <%= message %>
+        </div>
+        <% } %>
+            <div class="emoji">¯\_(ツ)_/¯</div>
+            <button class="btn-home" onclick="window.location.href='/'">
+                <i class="fa-solid fa-house"></i> Go Home
+            </button>
 </body>
+
 </html>

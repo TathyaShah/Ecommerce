@@ -6,6 +6,7 @@ const discountModel = require("./discount");
 const localStrategy = require("passport-local");
 const passport = require("passport");
 const upload = require("./multer");
+const nodemailer = require('nodemailer');
 // const { user } = require("fontawesome");
 
 const router = express.Router();
@@ -31,8 +32,8 @@ router.post("/register", async (req, res) => {
 
   const existingUser = await userModel.findOne({ email });
   if (existingUser) {
-    const emailExists = "EE";
-    return res.redirect(`/register?message=${emailExists}`);
+    const emailExists = "This email is already linked with an account. Please login";
+    return res.redirect(`/login?message=${emailExists}`);
   }
   try {
     const newUser = new userModel({
@@ -40,26 +41,36 @@ router.post("/register", async (req, res) => {
       email,
       fullname,
       mobile,
+      profile: '/images/default-avatar.png',
     });
 
     await userModel.register(newUser, password); // Passport-local-mongoose handles password hashing
 
     passport.authenticate("local")(req, res, () => {
-      const successRegistration = "RS";
+      const successRegistration = "Registration successful";
       res.redirect(`/?message=${successRegistration}`);
     });
   } catch (error) {
     console.error(error);
-    const failRegistration = "RF";
+    const failRegistration = "Error during registration. Please try again.";
     res.redirect(`/register?message=${failRegistration}`);
   }
 });
 
 // Login route
-router.post("/login", passport.authenticate("local", {
-  successRedirect: "/",
-  failureRedirect: `/login?message=LF`,
-}));
+router.post("/login", async (req, res, next) => {
+  const { email } = req.body;
+  const user = await userModel.findOne({ email });
+  const LF = "Invalid email or password";
+  if (!user) {
+    // User not found, redirect to register with message
+    return res.redirect('/register?message=' + encodeURIComponent("Username is not associated with this email. Try registering"));
+  }
+  passport.authenticate("local", {
+    successRedirect: "/",
+    failureRedirect: `/login?message=${LF}`,
+  })(req, res, next);
+});
 
 function isAdmin(req, res, next) {
   if (req.user && req.user.role === "admin") {
@@ -102,7 +113,7 @@ router.get("/", async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).render('404', { message: 'Internal Server Error' });
   }
 });
 
@@ -112,6 +123,15 @@ router.get("/login", (req, res) => {
 
 router.get("/register", async (req, res) => {
   res.render("register");
+});
+
+router.get('/account', isLoggedIn, async (req, res) => {
+  const user = await userModel.findOne({ _id: req.session.passport.user });
+  res.render('account', { user });
+});
+
+router.get('/faq', (req, res) => {
+  res.render('faq');
 });
 
 router.get("/admin", isAdmin, async (req, res) => {
@@ -239,13 +259,270 @@ router.get("/admin", isAdmin, async (req, res) => {
   }
 });
 
-router.get("/admin/products", isAdmin, (req, res) => {
-  res.render("admin/add_products");
+router.get("/admin/products", isAdmin, async (req, res) => {
+  try {
+    const products = await productModel.find();
+    res.render("admin/products", { products });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).render("404", { message: "Error fetching products" });
+  }
 });
 
 router.get("/admin/deleteProduct", isAdmin, (req, res) => {
   res.render("admin/delete");
 })
+
+router.post('/admin/products/delete/:id', isAdmin, async (req, res) => {
+  try {
+    await productModel.findByIdAndDelete(req.params.id);
+    res.redirect('/admin/products');
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    res.status(500).render('404', { message: 'Error deleting product' });
+  }
+});
+
+router.get("/admin/users", isAdmin, async (req, res) => {
+  try {
+    let users = await userModel.find();
+    const { sort, order } = req.query;
+    if (sort) {
+      users = users.sort((a, b) => {
+        let aValue, bValue;
+        switch (sort) {
+          case 'fullname':
+            aValue = a.fullname || '';
+            bValue = b.fullname || '';
+            break;
+          case 'email':
+            aValue = a.email || '';
+            bValue = b.email || '';
+            break;
+          case 'username':
+            aValue = a.username || '';
+            bValue = b.username || '';
+            break;
+          case 'mobile':
+            aValue = a.mobile || '';
+            bValue = b.mobile || '';
+            break;
+          case 'role':
+            aValue = a.role || '';
+            bValue = b.role || '';
+            break;
+          case 'orders':
+            aValue = a.orders ? a.orders.length : 0;
+            bValue = b.orders ? b.orders.length : 0;
+            break;
+          case 'totalSpent':
+            aValue = a.orders ? a.orders.reduce((sum, o) => sum + (o.totalPrice || 0), 0) : 0;
+            bValue = b.orders ? b.orders.reduce((sum, o) => sum + (o.totalPrice || 0), 0) : 0;
+            break;
+          default:
+            aValue = '';
+            bValue = '';
+        }
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          return order === 'desc' ? bValue.localeCompare(aValue) : aValue.localeCompare(bValue);
+        } else {
+          return order === 'desc' ? bValue - aValue : aValue - bValue;
+        }
+      });
+    }
+    res.render('admin/users', { users, sort, order });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).render('404', { message: 'Error fetching users' });
+  }
+});
+
+// Admin delete user route
+router.post('/admin/users/delete/:id', isAdmin, async (req, res) => {
+  try {
+    await userModel.findByIdAndDelete(req.params.id);
+    res.redirect('/admin/users');
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).render('404', { message: 'Error deleting user' });
+  }
+});
+
+// Admin update user role route
+router.post('/admin/users/role/:id', isAdmin, async (req, res) => {
+  try {
+    const { role } = req.body;
+    await userModel.findByIdAndUpdate(req.params.id, { role });
+    res.redirect('/admin/users');
+  } catch (error) {
+    console.error('Error updating user role:', error);
+    res.status(500).render('404', { message: 'Error updating user role' });
+  }
+});
+
+// Admin orders route
+router.get("/admin/orders", isAdmin, async (req, res) => {
+  try {
+    const allUsers = await userModel.find().populate('orders.products.productId');
+    const { sort, order, status } = req.query;
+
+    // Collect all orders from all users
+    let allOrders = [];
+    allUsers.forEach(user => {
+      user.orders.forEach(order => {
+        allOrders.push({
+          ...order.toObject(),
+          userId: user._id,
+          userEmail: user.email,
+          userFullname: user.fullname || user.username,
+          userMobile: user.mobile
+        });
+      });
+    });
+
+    // Apply status filter if provided
+    if (status && status !== 'all') {
+      allOrders = allOrders.filter(order => order.status === status);
+    }
+
+    // Apply sorting
+    if (sort) {
+      allOrders.sort((a, b) => {
+        let aValue, bValue;
+        switch (sort) {
+          case 'orderId':
+            aValue = a._id.toString();
+            bValue = b._id.toString();
+            break;
+          case 'customer':
+            aValue = a.userFullname || '';
+            bValue = b.userFullname || '';
+            break;
+          case 'email':
+            aValue = a.userEmail || '';
+            bValue = b.userEmail || '';
+            break;
+          case 'totalPrice':
+            aValue = a.totalPrice || 0;
+            bValue = b.totalPrice || 0;
+            break;
+          case 'items':
+            aValue = a.products ? a.products.length : 0;
+            bValue = b.products ? b.products.length : 0;
+            break;
+          case 'date':
+            aValue = new Date(a.createdAt);
+            bValue = new Date(b.createdAt);
+            break;
+          case 'status':
+            aValue = a.status || 'pending';
+            bValue = b.status || 'pending';
+            break;
+          default:
+            aValue = '';
+            bValue = '';
+        }
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          return order === 'desc' ? bValue.localeCompare(aValue) : aValue.localeCompare(bValue);
+        } else {
+          return order === 'desc' ? bValue - aValue : aValue - bValue;
+        }
+      });
+    }
+
+    // Calculate statistics
+    const totalOrders = allOrders.length;
+    const totalRevenue = allOrders.reduce((sum, order) => sum + (order.totalPrice || 0), 0);
+    const pendingOrders = allOrders.filter(order => !order.status || order.status === 'pending').length;
+    const completedOrders = allOrders.filter(order => order.status === 'completed').length;
+    const cancelledOrders = allOrders.filter(order => order.status === 'cancelled').length;
+    const totalItems = allOrders.reduce((sum, order) => sum + (order.products ? order.products.length : 0), 0);
+
+    // Category-wise revenue
+    const categoryRevenue = {
+      mensFashion: 0,
+      womensFashion: 0,
+      kidsFashion: 0,
+      electronics: 0,
+      groceries: 0,
+      furniture: 0
+    };
+
+    allOrders.forEach(order => {
+      order.products.forEach(product => {
+        const category = product.category;
+        if (categoryRevenue.hasOwnProperty(category)) {
+          categoryRevenue[category] += (product.price * product.quantity);
+        }
+      });
+    });
+
+    res.render('admin/orders', {
+      orders: allOrders,
+      sort,
+      order,
+      status,
+      totalOrders,
+      totalRevenue,
+      pendingOrders,
+      completedOrders,
+      cancelledOrders,
+      totalItems,
+      categoryRevenue
+    });
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    res.status(500).render('404', { message: 'Error fetching orders' });
+  }
+});
+
+// Admin update order status route
+router.post('/admin/orders/status/:orderId', isAdmin, async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { status } = req.body;
+
+    // Find the user who has this order
+    const user = await userModel.findOne({ 'orders._id': orderId });
+    if (!user) {
+      return res.status(404).render('404', { message: 'Order not found' });
+    }
+
+    // Update the order status
+    const orderIndex = user.orders.findIndex(order => order._id.toString() === orderId);
+    if (orderIndex !== -1) {
+      user.orders[orderIndex].status = status;
+      await user.save();
+    }
+
+    res.redirect('/admin/orders');
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    res.status(500).render('404', { message: 'Error updating order status' });
+  }
+});
+
+// Admin delete order route
+router.post('/admin/orders/delete/:orderId', isAdmin, async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    // Find the user who has this order
+    const user = await userModel.findOne({ 'orders._id': orderId });
+    if (!user) {
+      return res.status(404).render('404', { message: 'Order not found' });
+    }
+
+    // Remove the order
+    user.orders = user.orders.filter(order => order._id.toString() !== orderId);
+    await user.save();
+
+    res.redirect('/admin/orders');
+  } catch (error) {
+    console.error('Error deleting order:', error);
+    res.status(500).render('404', { message: 'Error deleting order' });
+  }
+});
 
 router.get("/cart", isLoggedIn, async (req, res) => {
   try {
@@ -278,7 +555,7 @@ router.get("/cart", isLoggedIn, async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching cart:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).render('404', { message: 'Internal Server Error' });
   }
 });
 
@@ -337,7 +614,7 @@ router.get("/category/:category/:subcategory/:productId", async (req, res) => {
 
     // Ensure product is found
     if (!product) {
-      return res.status(404).send("Product not found");
+      return res.status(404).render('404', { message: 'Product not found' });
     }
 
     const subcategory = product.sub_categories;
@@ -371,7 +648,7 @@ router.get("/category/:category/:subcategory/:productId", async (req, res) => {
     });
   } catch (error) {
     console.error("Error rendering product page:", error);
-    res.status(500).send("Error rendering the product page");
+    res.status(500).render('404', { message: 'Error rendering the product page' });
   }
 });
 
@@ -387,7 +664,7 @@ router.post("/searchProducts", async (req, res) => {
     res.send({ payload: slicedSearch });
   } catch (error) {
     console.error(error);
-    res.status(404).send("Internal Server Error");
+    res.status(404).render('404', { message: 'Internal Server Error' });
   }
 });
 
@@ -408,15 +685,15 @@ router.post("/cart/update", async function (req, res) {
         res.redirect("/cart");
       } else {
         console.error("Product not found in the cart");
-        res.status(404).send("Product not found in the cart");
+        res.status(404).render('404', { message: 'Product not found in the cart' });
       }
     } else {
       console.error("Cart not found for the user");
-      res.status(404).send("Cart not found for the user");
+      res.status(404).render('404', { message: 'Cart not found for the user' });
     }
   } catch (error) {
     console.error("Error updating cart:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).render('404', { message: 'Internal Server Error' });
   }
 });
 
@@ -462,7 +739,7 @@ router.post("/category/:categories/:sub_categories/:_id", isLoggedIn, async func
     res.redirect("/?message=ATC"); // Show message when added to cart
   } catch (error) {
     console.error("Error updating cart:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).render('404', { message: 'Internal Server Error' });
   }
 });
 
@@ -521,7 +798,7 @@ router.post("/cart/updates", async function (req, res) {
     res.redirect(`/category/${category}/${subcategory}/${productId}`);
   } catch (error) {
     console.error("Error updating cart:", error);
-    res.status(500).send("Error updating cart");
+    res.status(500).render('404', { message: 'Error updating cart' });
   }
 });
 
@@ -557,6 +834,7 @@ router.post("/proceedToPayment", isLoggedIn, async (req, res) => {
         price: product.price,
         category: product.product.categories,
         quantity: product.quantity,
+        name: product.product.name,
       })),
       discount: discount,
       totalPrice: totalPrice,
@@ -566,6 +844,73 @@ router.post("/proceedToPayment", isLoggedIn, async (req, res) => {
     // Push the order object to the user's orders array
     user.orders.push(order);
     await user.save();
+
+    // Send order confirmation email
+    // Set up nodemailer transporter (use your real SMTP config in production)
+    let transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS
+      }
+    });
+
+    // Build order details HTML (modern, clean UI)
+    let orderItemsHtml = order.products.map(p =>
+      `<tr>
+        <td style='padding:10px 8px; border-bottom:1px solid #e5e7eb;'>${p.name}</td>
+        <td style='padding:10px 8px; border-bottom:1px solid #e5e7eb; text-align:center;'>${p.quantity}</td>
+        <td style='padding:10px 8px; border-bottom:1px solid #e5e7eb; text-align:right;'>₹${p.price}</td>
+        <td style='padding:10px 8px; border-bottom:1px solid #e5e7eb; text-align:right;'>₹${p.price * p.quantity}</td>
+      </tr>`
+    ).join('');
+
+    let html = `
+      <div style="background:#f4f8fb;padding:32px 0;min-height:100vh;font-family:'Segoe UI',Arial,sans-serif;">
+        <div style="max-width:480px;margin:0 auto;background:#fff;border-radius:16px;box-shadow:0 2px 12px #0001;padding:32px 24px;">
+          <div style="text-align:center;margin-bottom:24px;">
+            <img src='https://cdn-icons-png.flaticon.com/512/3500/3500833.png' alt='Order Confirmed' style='width:64px;height:64px;margin-bottom:8px;'/>
+            <h2 style="color:#2563eb;font-size:1.5rem;margin:0 0 8px 0;">Thank you for your order, ${user.fullname || user.username}!</h2>
+            <p style="color:#64748b;font-size:1rem;margin:0;">Your order has been placed successfully.</p>
+          </div>
+          <div style="margin-bottom:24px;">
+            <h3 style="color:#0f172a;font-size:1.1rem;margin-bottom:8px;">Order Details</h3>
+            <table style="width:100%;border-collapse:collapse;background:#f9fafb;border-radius:8px;overflow:hidden;">
+              <thead>
+                <tr style="background:#e0e7ef;color:#2563eb;">
+                  <th style="padding:10px 8px;text-align:left;font-size:0.98rem;">Product</th>
+                  <th style="padding:10px 8px;text-align:center;font-size:0.98rem;">Qty</th>
+                  <th style="padding:10px 8px;text-align:right;font-size:0.98rem;">Price</th>
+                  <th style="padding:10px 8px;text-align:right;font-size:0.98rem;">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>${orderItemsHtml}</tbody>
+            </table>
+          </div>
+          <div style="margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;color:#334155;font-size:1rem;margin-bottom:4px;">
+              <span>Discount:</span>
+              <span>₹${order.discount || 0}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-weight:bold;color:#2563eb;font-size:1.1rem;">
+              <span>Total:</span>
+              <span>₹${order.totalPrice}</span>
+            </div>
+          </div>
+          <div style="color:#64748b;font-size:0.98rem;margin-bottom:8px;">
+            <strong>Order Date:</strong> ${order.createdAt.toLocaleString()}
+          </div>
+        </div>
+        <p style="text-align:center;color:#94a3b8;font-size:0.95rem;margin-top:32px;">If you have any questions, reply to this email.<br>Thank you for shopping with us!</p>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: 'no-reply@ecommerce.com',
+      to: user.email,
+      subject: 'Order Confirmation',
+      html
+    });
 
     // Clear the user's cart after placing the order
     cart.products = [];
@@ -578,7 +923,7 @@ router.post("/proceedToPayment", isLoggedIn, async (req, res) => {
     res.redirect("/orders"); // Redirect to orders page or any other desired page
   } catch (error) {
     console.error("Error proceeding to payment:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).render('404', { message: 'Internal Server Error' });
   }
 });
 
@@ -598,7 +943,7 @@ router.post("/sort", async (req, res) => {
     res.redirect("/cart");
   } catch (error) {
     console.error("Error sorting products:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).render('404', { message: 'Internal Server Error' });
   }
 });
 
@@ -620,7 +965,7 @@ router.post("/filter", async function (req, res) {
     res.redirect(`/?filter=${selectedFilter}`);
   } catch (error) {
     console.error("Error in filter route:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).render('404', { message: 'Internal Server Error' });
   }
 });
 
@@ -661,7 +1006,7 @@ router.post("/cart/delete", isLoggedIn, async (req, res) => {
     res.redirect(`/cart?message=${deleteProduct}`);
   } catch (error) {
     console.error("Error deleting product from cart:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).render('404', { message: 'Internal Server Error' });
   }
 });
 
@@ -712,7 +1057,7 @@ router.post("/upload", upload.single("file"), async (req, res) => {
     res.redirect("/admin");
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).render('404', { message: 'Internal Server Error' });
   }
 });
 

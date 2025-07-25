@@ -1,0 +1,257 @@
+<% include ./partials/header.ejs %>
+
+    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-10 px-4">
+        <!-- Breadcrumbs -->
+        <nav class="w-full max-w-4xl mx-auto mb-8" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2 text-sm text-gray-500">
+                <li>
+                    <a href="/" class="hover:text-blue-700 font-medium flex items-center">
+                        <i class="fa fa-home mr-1"></i> Home
+                    </a>
+                </li>
+                <li>
+                    <span class="mx-2">/</span>
+                </li>
+                <li class="text-blue-700 font-semibold">FAQ</li>
+            </ol>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="max-w-4xl mx-auto">
+            <!-- Header Section -->
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h1>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    Find answers to common questions about our ecommerce platform, shopping experience, and customer
+                    support.
+                </p>
+            </div>
+
+            <!-- FAQ Accordion Container -->
+            <div class="bg-white rounded-2xl shadow-xl p-8">
+                <div class="space-y-4">
+                    <!-- FAQ Item 1 -->
+                    <div class="faq-item border border-gray-200 rounded-xl overflow-hidden">
+                        <button
+                            class="faq-question w-full px-6 py-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between">
+                            <span class="font-semibold text-gray-900 text-lg">How do I create an account?</span>
+                            <i class="fa-solid fa-chevron-down text-blue-600 transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-answer hidden px-6 py-4 bg-white">
+                            <p class="text-gray-700 leading-relaxed">
+                                Creating an account is simple! Click on the "Register" button in the top navigation bar.
+                                Fill in your details including username, email, full name, and mobile number.
+                                Choose a secure password and click "Register". You can also sign up using your Google
+                                account for faster registration.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 2 -->
+                    <div class="faq-item border border-gray-200 rounded-xl overflow-hidden">
+                        <button
+                            class="faq-question w-full px-6 py-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between">
+                            <span class="font-semibold text-gray-900 text-lg">What payment methods do you accept?</span>
+                            <i class="fa-solid fa-chevron-down text-blue-600 transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-answer hidden px-6 py-4 bg-white">
+                            <p class="text-gray-700 leading-relaxed">
+                                We currently accept all major credit and debit cards (Visa, MasterCard, American
+                                Express),
+                                digital wallets like PayPal and Google Pay, and bank transfers.
+                                All transactions are secured with SSL encryption to ensure your payment information is
+                                safe.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 3 -->
+                    <div class="faq-item border border-gray-200 rounded-xl overflow-hidden">
+                        <button
+                            class="faq-question w-full px-6 py-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between">
+                            <span class="font-semibold text-gray-900 text-lg">How long does shipping take?</span>
+                            <i class="fa-solid fa-chevron-down text-blue-600 transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-answer hidden px-6 py-4 bg-white">
+                            <p class="text-gray-700 leading-relaxed">
+                                Standard shipping typically takes 3-5 business days within the country.
+                                Express shipping (1-2 business days) is available for an additional fee.
+                                International shipping may take 7-14 business days depending on the destination.
+                                You'll receive tracking information once your order ships.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 4 -->
+                    <div class="faq-item border border-gray-200 rounded-xl overflow-hidden">
+                        <button
+                            class="faq-question w-full px-6 py-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between">
+                            <span class="font-semibold text-gray-900 text-lg">What is your return policy?</span>
+                            <i class="fa-solid fa-chevron-down text-blue-600 transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-answer hidden px-6 py-4 bg-white">
+                            <p class="text-gray-700 leading-relaxed">
+                                We offer a 30-day return policy for most items. Products must be unused, in original
+                                packaging,
+                                and in the same condition as received. Some items like electronics and personal care
+                                products
+                                may have different return conditions. Return shipping is free for defective items.
+                                Contact our customer service team to initiate a return.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 5 -->
+                    <div class="faq-item border border-gray-200 rounded-xl overflow-hidden">
+                        <button
+                            class="faq-question w-full px-6 py-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between">
+                            <span class="font-semibold text-gray-900 text-lg">How do I track my order?</span>
+                            <i class="fa-solid fa-chevron-down text-blue-600 transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-answer hidden px-6 py-4 bg-white">
+                            <p class="text-gray-700 leading-relaxed">
+                                Once your order ships, you'll receive an email with tracking information.
+                                You can also track your order by logging into your account and visiting the "Orders"
+                                section.
+                                Click on any order to view its current status and tracking details.
+                                For real-time updates, use the tracking number provided in your shipping confirmation
+                                email.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 6 -->
+                    <div class="faq-item border border-gray-200 rounded-xl overflow-hidden">
+                        <button
+                            class="faq-question w-full px-6 py-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between">
+                            <span class="font-semibold text-gray-900 text-lg">Do you offer discounts and coupons?</span>
+                            <i class="fa-solid fa-chevron-down text-blue-600 transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-answer hidden px-6 py-4 bg-white">
+                            <p class="text-gray-700 leading-relaxed">
+                                Yes! We regularly offer discounts and promotional codes. New customers get 10% off their
+                                first order.
+                                We also have seasonal sales, holiday promotions, and loyalty rewards.
+                                Subscribe to our newsletter to stay updated on the latest deals.
+                                You can apply discount codes during checkout in the cart section.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 7 -->
+                    <div class="faq-item border border-gray-200 rounded-xl overflow-hidden">
+                        <button
+                            class="faq-question w-full px-6 py-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between">
+                            <span class="font-semibold text-gray-900 text-lg">Is my personal information secure?</span>
+                            <i class="fa-solid fa-chevron-down text-blue-600 transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-answer hidden px-6 py-4 bg-white">
+                            <p class="text-gray-700 leading-relaxed">
+                                Absolutely! We take your privacy and security seriously. All personal information is
+                                encrypted
+                                using industry-standard SSL technology. We never share your personal data with third
+                                parties
+                                without your consent. Our payment processing is PCI DSS compliant, ensuring your payment
+                                information is always protected.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 8 -->
+                    <div class="faq-item border border-gray-200 rounded-xl overflow-hidden">
+                        <button
+                            class="faq-question w-full px-6 py-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between">
+                            <span class="font-semibold text-gray-900 text-lg">How do I change my account
+                                information?</span>
+                            <i class="fa-solid fa-chevron-down text-blue-600 transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-answer hidden px-6 py-4 bg-white">
+                            <p class="text-gray-700 leading-relaxed">
+                                You can update your account information by logging into your account and visiting the
+                                "Account" page.
+                                From there, you can modify your personal details, change your password, update your
+                                profile picture,
+                                and manage your preferences. All changes are saved automatically and take effect
+                                immediately.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 9 -->
+                    <div class="faq-item border border-gray-200 rounded-xl overflow-hidden">
+                        <button
+                            class="faq-question w-full px-6 py-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between">
+                            <span class="font-semibold text-gray-900 text-lg">What if I receive a damaged item?</span>
+                            <i class="fa-solid fa-chevron-down text-blue-600 transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-answer hidden px-6 py-4 bg-white">
+                            <p class="text-gray-700 leading-relaxed">
+                                If you receive a damaged item, please contact our customer service within 48 hours of
+                                delivery.
+                                Take photos of the damage and include them in your message. We'll arrange for a
+                                replacement
+                                or refund at no additional cost. In most cases, we'll provide a prepaid return label
+                                for the damaged item.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 10 -->
+                    <div class="faq-item border border-gray-200 rounded-xl overflow-hidden">
+                        <button
+                            class="faq-question w-full px-6 py-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between">
+                            <span class="font-semibold text-gray-900 text-lg">How can I contact customer support?</span>
+                            <i class="fa-solid fa-chevron-down text-blue-600 transition-transform duration-300"></i>
+                        </button>
+                        <div class="faq-answer hidden px-6 py-4 bg-white">
+                            <p class="text-gray-700 leading-relaxed">
+                                Our customer support team is available 24/7 to help you. You can reach us through
+                                multiple channels:
+                                email at support@ecommerce.com, live chat on our website, or by phone at
+                                1-800-ECOMMERCE.
+                                We typically respond to emails within 2 hours and provide real-time assistance through
+                                live chat.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accordion JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const faqItems = document.querySelectorAll('.faq-item');
+
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question');
+                const answer = item.querySelector('.faq-answer');
+                const icon = item.querySelector('.fa-chevron-down');
+
+                question.addEventListener('click', () => {
+                    // Close all other FAQ items
+                    faqItems.forEach(otherItem => {
+                        if (otherItem !== item) {
+                            const otherAnswer = otherItem.querySelector('.faq-answer');
+                            const otherIcon = otherItem.querySelector('.fa-chevron-down');
+                            otherAnswer.classList.add('hidden');
+                            otherIcon.style.transform = 'rotate(0deg)';
+                        }
+                    });
+
+                    // Toggle current FAQ item
+                    answer.classList.toggle('hidden');
+
+                    // Rotate icon
+                    if (answer.classList.contains('hidden')) {
+                        icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        icon.style.transform = 'rotate(180deg)';
+                    }
+                });
+            });
+        });
+    </script>
+
+    <% include ./partials/footer.ejs %>

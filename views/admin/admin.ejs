@@ -1,86 +1,135 @@
 <% include ../partials/header.ejs %>
-    <div class="flex">
-        <div class="bg-sky-200 text-blue-600 w-1/5 h-screen flex-shrink-0">
-            <div class="p-6">
-                <h1 class="text-2xl text-blue-900 font-bold text-center">Admin Panel</h1>
-            </div>
-            <nav class="flex flex-col items-start justify-center">
+    <div class="flex flex-col md:flex-row min-h-screen md:h-screen bg-blue-50 overflow-y-auto md:overflow-y-hidden">
+        <!-- Hamburger for mobile -->
+        <button id="sidebarToggle"
+            class="md:hidden absolute top-4 left-4 z-30 bg-white p-2 rounded-lg shadow-md focus:outline-none">
+            <i class="fa-solid fa-bars text-2xl text-blue-800"></i>
+        </button>
+        <!-- Sidebar -->
+        <aside id="adminSidebar"
+            class="fixed md:static top-0 left-0 w-4/5 max-w-xs md:w-1/5 bg-white rounded-b-3xl md:rounded-r-3xl md:rounded-b-none shadow-lg py-6 px-3 md:mr-6 mt-0 md:mt-4 mb-4 md:ml-2 h-full md:h-[95vh] flex-shrink-0 z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col">
+            <!-- Close button for mobile -->
+            <button id="sidebarClose"
+                class="md:hidden absolute top-4 right-4 bg-gray-100 p-2 rounded-lg focus:outline-none">
+                <i class="fa-solid fa-times text-xl text-gray-700"></i>
+            </button>
+            <h1 class="text-2xl text-gray-900 font-bold text-center mb-6 mt-8 md:mt-0">Admin Panel</h1>
+            <nav class="flex flex-col gap-2 flex-1">
+                <a href="/" class="py-2 px-4 rounded-lg text-gray-700 font-semibold hover:bg-gray-100 transition">
+                    <i class="fa-solid fa-house text-lg mr-2"></i>Home</a>
+                <a href="/admin"
+                    class="flex items-center gap-3 py-3 px-5 rounded-xl font-bold bg-blue-100 text-blue-700 shadow hover:scale-105 transition-all duration-200">
+                    <i class="fa-solid fa-chart-line text-lg"></i>Dashboard</a>
                 <a href="/admin/users"
-                    class="block py-2 px-6 text-xl font-semibold hover:bg-blue-800 hover:text-white hover:w-full">Users</a>
-                <a href="/"
-                    class="block py-2 px-6 text-xl font-semibold hover:bg-blue-800 hover:text-white hover:w-full">Home</a>
+                    class="py-2 px-4 rounded-lg text-gray-700 font-semibold hover:bg-gray-100 transition">
+                    <i class="fa-solid fa-user-group text-lg mr-2"></i>Users</a>
                 <a href="/admin/products"
-                    class="block py-2 px-6 text-xl font-semibold hover:bg-blue-800 hover:text-white hover:w-full">Products</a>
+                    class="py-2 px-4 rounded-lg text-gray-700 font-semibold hover:bg-gray-100 transition">
+                    <i class="fa-solid fa-shirt text-lg mr-2"></i>Products</a>
                 <a href="/admin/orders"
-                    class="block py-2 px-6 text-xl font-semibold hover:bg-blue-800 hover:text-white hover:w-full">Orders</a>
-                <a href="/admin/settings"
-                    class="block py-2 px-6 text-xl font-semibold hover:bg-blue-800 hover:text-white hover:w-full">Settings</a>
-                <a href="/logout"
-                    class="block py-2 px-6 text-xl font-semibold hover:bg-blue-800 hover:text-white hover:w-full">Logout</a>
+                    class="py-2 px-4 rounded-lg text-gray-700 font-semibold hover:bg-gray-100 transition">
+                    <i class="fa-solid fa-truck text-lg mr-2"></i>Orders</a>
             </nav>
-        </div>
-        <div class="flex-1 p-10">
-            <h2 class="text-4xl font-bold">Dashboard</h2>
-            <div class="flex gap-10 my-7 justify-between items-center">
-                <div class="w-2/5 h-36 shadow-lg rounded-3xl bg-red-300 flex flex-wrap items-center justify-evenly">
-                    <div class="flex items-center text-justify">
-                        <i class="fa-solid fa-user-group fa-4x" style="color: #e82c2c;"></i>
+            <a href="/logout"
+                class="mt-auto block w-full py-2 px-4 rounded-lg bg-red-500 text-white font-semibold text-center hover:bg-red-600 transition">
+                <i class="fa-solid fa-arrow-right-from-bracket text-lg mr-2"></i>Logout</a>
+        </aside>
+        <!-- Overlay for mobile sidebar -->
+        <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-30 z-30 hidden md:hidden"></div>
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col p-4 md:p-12 h-full md:overflow-y-auto overflow-y-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-blue-900 mb-8">Dashboard</h2>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mb-8">
+                <div
+                    class="bg-white rounded-2xl shadow-md flex flex-col md:flex-row items-center justify-center h-36 px-4">
+                    <div class="flex items-center justify-center w-full md:w-1/2 h-1/2 md:h-full">
+                        <i class="fa-solid fa-user-group text-5xl md:text-6xl text-blue-400"></i>
                     </div>
-                    <div class="flex flex-col items-center gap-5 justify-evenly">
-                        <div class="text-3xl font-bold">Users</div>
-                        <div class="text-3xl">
+                    <div class="flex flex-col justify-center w-full md:w-1/2 h-1/2 md:h-full">
+                        <div class="text-lg font-semibold text-blue-700 text-center">Users</div>
+                        <div class="text-2xl font-bold text-blue-900 text-center mt-2">
                             <%= userCount %>
                         </div>
                     </div>
                 </div>
-                <div class="w-2/5 h-36 shadow-lg rounded-3xl bg-purple-300 flex items-center justify-evenly">
-                    <div class="flex items-center text-justify">
-                        <i class="fa-solid fa-shirt fa-4x" style="color: #794dff;"></i>
+                <div
+                    class="bg-white rounded-2xl shadow-md flex flex-col md:flex-row items-center justify-center h-36 px-4">
+                    <div class="flex items-center justify-center w-full md:w-1/2 h-1/2 md:h-full">
+                        <i class="fa-solid fa-shirt text-5xl md:text-6xl text-purple-400"></i>
                     </div>
-                    <div class="flex flex-col items-center gap-5 justify-evenly">
-                        <div class="text-3xl font-bold">Products</div>
-                        <div class="text-3xl">
+                    <div class="flex flex-col justify-center w-full md:w-1/2 h-1/2 md:h-full">
+                        <div class="text-lg font-semibold text-blue-700 text-center">Products</div>
+                        <div class="text-2xl font-bold text-blue-900 text-center mt-2">
                             <%= productCount %>
                         </div>
                     </div>
                 </div>
-                <div class="w-2/5 h-36 shadow-lg rounded-3xl bg-green-300 flex items-center justify-evenly">
-                    <div class="flex items-center text-justify">
-                        <i class="fa-solid fa-sack-dollar fa-4x" style="color: #008f64;"></i>
+                <div
+                    class="bg-white rounded-2xl shadow-md flex flex-col md:flex-row items-center justify-center h-36 px-4">
+                    <div class="flex items-center justify-center w-full md:w-1/2 h-1/2 md:h-full">
+                        <i class="fa-solid fa-sack-dollar text-5xl md:text-6xl text-green-400"></i>
                     </div>
-                    <div class="flex flex-col items-center gap-5 justify-evenly">
-                        <div class="text-3xl font-bold">Earnings</div>
-                        <div class="text-3xl">
+                    <div class="flex flex-col justify-center w-full md:w-1/2 h-1/2 md:h-full">
+                        <div class="text-lg font-semibold text-blue-700 text-center">Earnings</div>
+                        <div class="text-2xl font-bold text-blue-900 text-center mt-2">
                             <%= totalEarnings %>
                         </div>
                     </div>
                 </div>
-                <div class="w-2/5 h-36 shadow-lg rounded-3xl bg-blue-300 flex items-center justify-evenly">
-                    <div class="flex items-center text-justify">
-                        <i class="fa-solid fa-truck fa-4x" style="color: #3881ff;"></i>
+                <div
+                    class="bg-white rounded-2xl shadow-md flex flex-col md:flex-row items-center justify-center h-36 px-4">
+                    <div class="flex items-center justify-center w-full md:w-1/2 h-1/2 md:h-full">
+                        <i class="fa-solid fa-truck text-5xl md:text-6xl text-blue-400"></i>
                     </div>
-                    <div class="flex flex-col items-center gap-5 justify-evenly">
-                        <div class="text-3xl font-bold">Sales</div>
-                        <div class="text-3xl">
+                    <div class="flex flex-col justify-center w-full md:w-1/2 h-1/2 md:h-full">
+                        <div class="text-lg font-semibold text-blue-700 text-center">Sales</div>
+                        <div class="text-2xl font-bold text-blue-900 text-center mt-2">
                             <%= totalSales %>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="flex gap-7 items-center justify-between w-4/5">
-                <div class="border-2 mt-7 rounded-3xl">
-                    <canvas height="450" width="750" id="myChart"></canvas>
+            <div class="flex flex-col lg:flex-row gap-6 md:gap-8 w-full flex-1 min-h-0">
+                <div
+                    class="bg-white rounded-2xl shadow-md p-4 md:p-6 flex-1 flex items-center justify-center min-h-0 h-full w-full md:w-[400px]">
+                    <canvas class="w-full h-[350px] md:h-[220px]" id="myChart"></canvas>
                 </div>
-                <div class="border-2 mt-7 rounded-3xl">
-                    <canvas height="350" width="450" id="myChart2"></canvas>
+                <div
+                    class="bg-white rounded-2xl shadow-md p-4 md:p-6 flex-1 flex items-center justify-center max-w-sm mx-auto lg:mx-0 min-h-0 h-full w-full md:w-[270px]">
+                    <canvas class="w-full h-[350px] md:h-[220px]" id="myChart2"></canvas>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
     <script>
+        // Sidebar toggle logic for mobile
+        const sidebar = document.getElementById('adminSidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarClose = document.getElementById('sidebarClose');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        function openSidebar() {
+            sidebar.classList.remove('-translate-x-full');
+            sidebarOverlay.classList.remove('hidden');
+        }
+        function closeSidebar() {
+            sidebar.classList.add('-translate-x-full');
+            sidebarOverlay.classList.add('hidden');
+        }
+        sidebarToggle.addEventListener('click', openSidebar);
+        sidebarClose.addEventListener('click', closeSidebar);
+        sidebarOverlay.addEventListener('click', closeSidebar);
+        // Chart.js logic
         const ctx = document.getElementById('myChart');
-
-        var data = [<%= mensFashion %>, <%= womensFashion %>, <%= kidsFashion %>, <%= electronics %>, <%= groceries %>, <%= furniture %>];
+        var data = [Number('<%= mensFashion %>'), Number('<%= womensFashion %>'), Number('<%= kidsFashion %>'), Number('<%= electronics %>'), Number('<%= groceries %>'), Number('<%= furniture %>')];
+        var barColor = '#60a5fa'; // Slightly darker blue
+        var pieColors = [
+            '#2563eb', // blue
+            '#06b6d4', // teal
+            '#a78bfa', // purple
+            '#fb923c', // orange
+            '#fde047', // yellow
+            '#f472b6'  // pink
+        ];
         new Chart(ctx, {
             type: 'bar',
             data: {
@@ -88,16 +137,14 @@
                 datasets: [{
                     label: 'Sales',
                     data: data,
-                    backgroundColor: '#A05AFF',
+                    backgroundColor: barColor,
                     borderRadius: 15,
                     barPercentage: 0.85,
                     borderWidth: 1
                 }]
             },
             options: {
-                options: {
-                    maintainAspectRatio: false
-                },
+                maintainAspectRatio: false,
                 scales: {
                     y: {
                         beginAtZero: true
@@ -105,10 +152,8 @@
                 }
             }
         });
-
         const ctx2 = document.getElementById('myChart2');
-
-        var data2 = [<%= mensFashionP %>, <%= womensFashionP %>, <%= kidsFashionP %>, <%= electronicsP %>, <%= groceriesP %>, <%= furnitureP %>];
+        var data2 = [Number('<%= mensFashionP %>'), Number('<%= womensFashionP %>'), Number('<%= kidsFashionP %>'), Number('<%= electronicsP %>'), Number('<%= groceriesP %>'), Number('<%= furnitureP %>')];
         new Chart(ctx2, {
             type: 'pie',
             data: {
@@ -116,19 +161,12 @@
                 datasets: [{
                     label: 'Products Sold',
                     data: data2,
-                    backgroundColor: ['#6050DC', '#D52DB7', '#FF2E7E', '#FF6B45', '#FFAB05', '#1fe074'],
+                    backgroundColor: pieColors,
                     borderWidth: 1
                 }]
             },
             options: {
-                options: {
-                    maintainAspectRatio: false
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
+                maintainAspectRatio: false
             }
         });
     </script>

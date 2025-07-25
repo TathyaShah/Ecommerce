@@ -1,0 +1,262 @@
+<% include ../partials/header.ejs %>
+    <div class="flex flex-col md:flex-row min-h-screen md:h-screen overflow-y-auto md:overflow-y-hidden bg-purple-50">
+        <!-- Hamburger for mobile -->
+        <button id="sidebarToggle"
+            class="md:hidden absolute top-4 left-4 z-30 bg-purple-100 p-2 rounded-lg shadow-lg focus:outline-none hover:bg-purple-200 transition-all duration-200">
+            <i class="fa-solid fa-bars text-2xl text-purple-800"></i>
+        </button>
+        <!-- Sidebar -->
+        <aside id="adminSidebar"
+            class="fixed md:static top-0 left-0 w-4/5 max-w-xs md:w-1/5 bg-white rounded-b-3xl md:rounded-r-3xl md:rounded-b-none shadow-lg py-6 px-3 md:mr-6 mt-0 md:mt-4 mb-4 md:ml-2 h-full md:h-[95vh] flex-shrink-0 z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col">
+            <!-- Close button for mobile -->
+            <button id="sidebarClose"
+                class="md:hidden absolute top-4 right-4 bg-gray-100 p-2 rounded-lg focus:outline-none"><i
+                    class="fa-solid fa-times text-xl text-gray-700"></i></button>
+            <h1 class="text-2xl text-gray-900 font-bold text-center mb-6 mt-8 md:mt-0">Admin Panel</h1>
+            <nav class="flex flex-col gap-2 flex-1">
+                <a href="/" class="py-2 px-4 rounded-lg text-gray-700 font-semibold hover:bg-gray-100 transition">
+                    <i class="fa-solid fa-house text-lg mr-2"></i>Home</a>
+                <a href="/admin"
+                    class="py-2 px-4 rounded-lg text-gray-700 font-semibold hover:bg-gray-100 transition"><i
+                        class="fa-solid fa-chart-line text-lg mr-2"></i>Dashboard</a>
+                <a href="/admin/users"
+                    class="flex items-center gap-3 py-3 px-5 rounded-xl font-bold bg-purple-100 text-purple-700 shadow hover:scale-105 transition-all duration-200">
+                    <i class="fa-solid fa-user-group text-lg"></i>Users</a>
+                <a href="/admin/products"
+                    class="py-2 px-4 rounded-lg text-gray-700 font-semibold hover:bg-gray-100 transition"><i
+                        class="fa-solid fa-shirt text-lg mr-2"></i>Products</a>
+                <a href="/admin/orders"
+                    class="py-2 px-4 rounded-lg text-gray-700 font-semibold hover:bg-gray-100 transition"><i
+                        class="fa-solid fa-truck text-lg mr-2"></i>Orders</a>
+            </nav>
+            <a href="/logout"
+                class="mt-auto block w-full py-2 px-4 rounded-lg bg-red-500 text-white font-semibold text-center hover:bg-red-600 transition">
+                <i class="fa-solid fa-arrow-right-from-bracket text-lg mr-2"></i>Logout</a>
+        </aside>
+        <!-- Overlay for mobile sidebar -->
+        <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-30 z-30 hidden md:hidden"></div>
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col p-4 md:p-12 h-full md:overflow-y-auto overflow-y-auto bg-purple-50">
+            <div class="max-w-7xl mx-auto">
+                <h1 class="text-3xl font-bold text-gray-900 mb-6">All Users</h1>
+                <div class="flex flex-wrap gap-6 mb-6">
+                    <div class="bg-teal-100 rounded-xl shadow p-4 flex-1 min-w-[220px]">
+                        <div class="text-teal-700 text-lg font-semibold">Total Users</div>
+                        <div class="text-2xl font-bold text-gray-900 mt-1">
+                            <%= users.length %>
+                        </div>
+                    </div>
+                    <div class="bg-yellow-100 rounded-xl shadow p-4 flex-1 min-w-[220px]">
+                        <div class="text-yellow-700 text-lg font-semibold">Total Spent</div>
+                        <div class="text-2xl font-bold text-gray-900 mt-1">
+                            ₹<%= users.reduce((sum, u)=> sum + (u.orders?.reduce((s, o) => s + (o.totalPrice || 0), 0)
+                                || 0), 0) %>
+                        </div>
+                    </div>
+                    <div class="bg-pink-100 rounded-xl shadow p-4 flex-1 min-w-[220px]">
+                        <div class="text-pink-700 text-lg font-semibold">Total Orders</div>
+                        <div class="text-2xl font-bold text-gray-900 mt-1">
+                            <%= users.reduce((sum, u)=> sum + (u.orders ? u.orders.length : 0), 0) %>
+                        </div>
+                    </div>
+                    <div class="bg-purple-100 rounded-xl shadow p-4 flex-1 min-w-[220px]">
+                        <div class="text-purple-700 text-lg font-semibold">Admins</div>
+                        <div class="text-2xl font-bold text-gray-900 mt-1">
+                            <%= users.filter(u=> u.role === 'admin').length %>
+                        </div>
+                    </div>
+                </div>
+                <!-- Search Bar Start -->
+                <div class="flex justify-end mb-6">
+                    <div class="relative w-full">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                            <i class="fa fa-search text-purple-300"></i>
+                        </span>
+                        <input type="text" id="userSearch" placeholder="Search by name, username, or email..."
+                            class="pl-10 pr-4 py-2 w-full rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-300 focus:outline-none bg-purple-50 text-gray-900 shadow transition"
+                            autocomplete="off">
+                    </div>
+                </div>
+                <!-- Search Bar End -->
+                <div class="overflow-x-auto rounded-2xl shadow-lg bg-gray-100">
+                    <table class="min-w-full text-left text-sm" id="usersTable">
+                        <thead class="bg-purple-100 text-purple-900">
+                            <tr>
+                                <th class="py-3 px-4 font-semibold">
+                                    <span class="flex items-center gap-1">
+                                        Name
+                                        <a href="?sort=fullname&order=<%= sort === 'fullname' && order === 'asc' ? 'desc' : 'asc' %>"
+                                            class="ml-1">
+                                            <i
+                                                class="fa-solid fa-sort<%= sort === 'fullname' ? (order === 'asc' ? '-up text-purple-600' : '-down text-purple-600') : '' %>"></i>
+                                        </a>
+                                    </span>
+                                </th>
+                                <th class="py-3 px-4 font-semibold">
+                                    <span class="flex items-center gap-1">
+                                        Email
+                                        <a href="?sort=email&order=<%= sort === 'email' && order === 'asc' ? 'desc' : 'asc' %>"
+                                            class="ml-1">
+                                            <i
+                                                class="fa-solid fa-sort<%= sort === 'email' ? (order === 'asc' ? '-up text-purple-600' : '-down text-purple-600') : '' %>"></i>
+                                        </a>
+                                    </span>
+                                </th>
+                                <th class="py-3 px-4 font-semibold">
+                                    <span class="flex items-center gap-1">
+                                        Username
+                                        <a href="?sort=username&order=<%= sort === 'username' && order === 'asc' ? 'desc' : 'asc' %>"
+                                            class="ml-1">
+                                            <i
+                                                class="fa-solid fa-sort<%= sort === 'username' ? (order === 'asc' ? '-up text-purple-600' : '-down text-purple-600') : '' %>"></i>
+                                        </a>
+                                    </span>
+                                </th>
+                                <th class="py-3 px-4 font-semibold">
+                                    <span class="flex items-center gap-1">
+                                        Mobile
+                                        <a href="?sort=mobile&order=<%= sort === 'mobile' && order === 'asc' ? 'desc' : 'asc' %>"
+                                            class="ml-1">
+                                            <i
+                                                class="fa-solid fa-sort<%= sort === 'mobile' ? (order === 'asc' ? '-up text-purple-600' : '-down text-purple-600') : '' %>"></i>
+                                        </a>
+                                    </span>
+                                </th>
+                                <th class="py-3 px-4 font-semibold">
+                                    <span class="flex items-center gap-1">
+                                        Role
+                                        <a href="?sort=role&order=<%= sort === 'role' && order === 'asc' ? 'desc' : 'asc' %>"
+                                            class="ml-1">
+                                            <i
+                                                class="fa-solid fa-sort<%= sort === 'role' ? (order === 'asc' ? '-up text-purple-600' : '-down text-purple-600') : '' %>"></i>
+                                        </a>
+                                    </span>
+                                </th>
+                                <th class="py-3 px-4 font-semibold">
+                                    <span class="flex items-center gap-1">
+                                        Orders
+                                        <a href="?sort=orders&order=<%= sort === 'orders' && order === 'asc' ? 'desc' : 'asc' %>"
+                                            class="ml-1">
+                                            <i
+                                                class="fa-solid fa-sort<%= sort === 'orders' ? (order === 'asc' ? '-up text-purple-600' : '-down text-purple-600') : '' %>"></i>
+                                        </a>
+                                    </span>
+                                </th>
+                                <th class="py-3 px-4 font-semibold">
+                                    <span class="flex items-center gap-1">
+                                        Total Spent
+                                        <a href="?sort=totalSpent&order=<%= sort === 'totalSpent' && order === 'asc' ? 'desc' : 'asc' %>"
+                                            class="ml-1">
+                                            <i
+                                                class="fa-solid fa-sort<%= sort === 'totalSpent' ? (order === 'asc' ? '-up text-purple-600' : '-down text-purple-600') : '' %>"></i>
+                                        </a>
+                                    </span>
+                                </th>
+                                <th class="py-3 px-4 font-semibold">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% users.forEach(user=> { %>
+                                <tr class="border-b last:border-0 hover:bg-purple-50 transition text-base">
+                                    <td class="py-4 px-4 user-fullname">
+                                        <%= user.fullname || '-' %>
+                                    </td>
+                                    <td class="py-4 px-4 user-email">
+                                        <%= user.email %>
+                                    </td>
+                                    <td class="py-4 px-4 user-username">
+                                        <%= user.username %>
+                                    </td>
+                                    <td class="py-4 px-4">
+                                        <%= user.mobile || '-' %>
+                                    </td>
+                                    <td class="py-4 px-4">
+                                        <form method="POST" action="/admin/users/role/<%= user._id %>" class="inline">
+                                            <select name="role"
+                                                class="rounded-lg px-2 py-1 border border-purple-200 bg-purple-50 text-purple-900 font-semibold focus:ring-2 focus:ring-purple-400 focus:outline-none transition"
+                                                onchange="this.form.submit()">
+                                                <option value="admin" <%=user.role==='admin' ? 'selected' : '' %>>Admin
+                                                </option>
+                                                <option value="user" <%=user.role==='user' ? 'selected' : '' %>>User
+                                                </option>
+                                            </select>
+                                        </form>
+                                    </td>
+                                    <td class="py-4 px-4 text-center">
+                                        <%= user.orders ? user.orders.length : 0 %>
+                                    </td>
+                                    <td class="py-4 px-4">₹<%= user.orders ? user.orders.reduce((sum, o)=> sum +
+                                            (o.totalPrice || 0), 0) : 0 %></td>
+                                    <td class="py-4 px-4">
+                                        <form method="POST" action="/admin/users/delete/<%= user._id %>"
+                                            class="delete-user-form">
+                                            <button type="button"
+                                                class="bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-lg font-semibold text-sm transition delete-user-btn">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <% include ../partials/footer.ejs %>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            // Sidebar toggle logic for mobile
+            const sidebar = document.getElementById('adminSidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarClose = document.getElementById('sidebarClose');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            function openSidebar() {
+                sidebar.classList.remove('-translate-x-full');
+                sidebarOverlay.classList.remove('hidden');
+            }
+            function closeSidebar() {
+                sidebar.classList.add('-translate-x-full');
+                sidebarOverlay.classList.add('hidden');
+            }
+            sidebarToggle.addEventListener('click', openSidebar);
+            sidebarClose.addEventListener('click', closeSidebar);
+            sidebarOverlay.addEventListener('click', closeSidebar);
+            // SweetAlert2 for delete
+            document.querySelectorAll('.delete-user-btn').forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    const form = btn.closest('form');
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "This action cannot be undone!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, delete user',
+                        background: '#f0f9ff',
+                        color: '#1e293b',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+            // Dynamic search bar logic
+            const searchInput = document.getElementById('userSearch');
+            const table = document.getElementById('usersTable');
+            searchInput.addEventListener('input', function () {
+                const filter = searchInput.value.toLowerCase();
+                const rows = table.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const name = row.querySelector('.user-fullname').textContent.toLowerCase();
+                    const email = row.querySelector('.user-email').textContent.toLowerCase();
+                    const username = row.querySelector('.user-username').textContent.toLowerCase();
+                    if (name.includes(filter) || email.includes(filter) || username.includes(filter)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        </script>

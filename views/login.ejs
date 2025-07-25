@@ -1,11 +1,11 @@
 <% include ./partials/header.ejs %>
-    <div class="flex min-h-screen items-center justify-center bg-red-400">
+    <div class="flex min-h-screen items-center justify-center bg-blue-400">
         <div
             class="bg-white w-[90vw] sm:w-[60vw] md:w-[50vw] lg:w-[60vw] h-auto flex rounded-[20px] shadow-lg overflow-hidden">
             <!-- Left section with image and text -->
-            <div class="hidden lg:flex w-1/2 bg-red-200 items-center justify-center flex-col p-10">
+            <div class="hidden lg:flex w-1/2 bg-blue-200 items-center justify-center flex-col p-10">
                 <img src="/images/7674006-removebg-preview.png" class="w-[80%]" alt="Illustration">
-                <p class="text-lg mt-8 text-center text-orange-700 font-semibold">Start for free and get attractive
+                <p class="text-lg mt-8 text-center text-blue-700 font-semibold">Start for free and get attractive
                     offers.</p>
             </div>
 
@@ -14,13 +14,13 @@
                 <h1 class="text-2xl sm:text-3xl mb-6 font-semibold text-gray-700 text-center">Welcome to E-commerce</h1>
                 <form action="/login" method="post" class="space-y-5">
                     <input
-                        class=" border-[2px] rounded-md block px-4 py-3 w-full focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        class=" border-[2px] rounded-md block px-4 py-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         type="text" name="email" placeholder="Email">
                     <input
-                        class="border-[2px] rounded-md block px-4 py-3 w-full focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        class="border-[2px] rounded-md block px-4 py-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         type="password" name="password" placeholder="Password">
                     <input
-                        class="block px-4 py-3 w-full bg-orange-600 text-white rounded-lg cursor-pointer hover:bg-orange-500 transition duration-150"
+                        class="block px-4 py-3 w-full bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-500 transition duration-150"
                         type="submit" value="Login">
                 </form>
                 <div class="flex items-center justify-between mt-4 space-y-2">
@@ -34,7 +34,7 @@
                         alt="google logo">
                     <span>Login with Google</span>
                 </a>
-                <a href="/register" class="block text-center mt-6 text-orange-600 hover:underline">Don't have an
+                <a href="/register" class="block text-center mt-6 text-blue-600 hover:underline">Don't have an
                     account?</a>
             </div>
         </div>
@@ -44,14 +44,15 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const message = urlParams.get('message');
-        if (message === 'LF') {
+
+        if (message) {
             Swal.fire({
                 icon: 'error',
-                title: 'Login Failed',
-                text: "Invalid Email or Password",
+                title: 'Oops!',
+                text: decodeURIComponent(message.replace(/\+/g, ' ')),
                 timer: 2500,
                 showConfirmButton: false
             });
-        }
+        }      
     </script>
     <% include ./partials/footer.ejs %>

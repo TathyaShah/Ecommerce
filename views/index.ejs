@@ -1,192 +1,246 @@
 <% include ./partials/header.ejs %>
 
-    <div class="h-screen flex flex-col md:flex-row overflow-hidden">
-        <!-- Sidebar -->
-        <div id="sidebar"
-            class="hidden md:block w-full md:w-1/5 px-3 py-4 bg-blue-50 dark:bg-blue-900 fixed md:relative transition-transform transform -translate-x-full md:translate-x-0 md:transform-none">
-            <div class="text-white flex justify-between items-center py-8 px-5">
-                <button id="hamburgerBtn" class="md:hidden"><i class="fa-solid fa-bars fa-xl"></i></button>
-                <button id="closeBtn" class="hidden"><i class="fa-solid fa-times fa-xl"></i></button>
-            </div>
-            <h1 class="bg-blue-100 text-center text-blue-800 font-semibold text-xl mb-3 mx-2 py-2 rounded-lg">Explore
-                Categories</h1>
-            <ul class="text-xl space-y-2 font-medium mb-4">
-                <li>
-                    <a href="#electronics"
-                        class="flex items-center mx-2 px-5 py-3 text-blue-800 dark:text-blue-50 hover:bg-blue-200 dark:hover:bg-blue-700 group rounded-lg">Electronics</a>
-                    <a href="#mensFashion"
-                        class="flex items-center mx-2 px-5 py-3 text-blue-800 dark:text-blue-50 hover:bg-blue-200 dark:hover:bg-blue-700 group rounded-lg">Men's
-                        Fashion</a>
-                    <a href="#womensFashion"
-                        class="flex items-center mx-2 px-5 py-3 text-blue-800 dark:text-blue-50 hover:bg-blue-200 dark:hover:bg-blue-700 group rounded-lg">Women's
-                        Fashion</a>
-                    <a href="#kidsFashion"
-                        class="flex items-center mx-2 px-5 py-3 text-blue-800 dark:text-blue-50 hover:bg-blue-200 dark:hover:bg-blue-700 group rounded-lg">Kids'
-                        Fashion</a>
-                    <a href="#furniture"
-                        class="flex items-center mx-2 px-5 py-3 text-blue-800 dark:text-blue-50 hover:bg-blue-200 dark:hover:bg-blue-700 group rounded-lg">Furniture</a>
-                    <a href="#groceries"
-                        class="flex items-center mx-2 px-5 py-3 text-blue-800 dark:text-blue-50 hover:bg-blue-200 dark:hover:bg-blue-700 group rounded-lg">Groceries</a>
-                </li>
-            </ul>
-            <h1 class="bg-blue-100 text-center text-blue-800 font-semibold text-xl mb-3 mx-2 py-2 rounded-lg">Filter By
-                Rating</h1>
-            <div class="text-xl my-3 mx-3 flex-col items-center justify-between">
-                <form action="/filter" method="post" class="text-white">
-                    <div class="relative flex">
-                        <input type="radio" name="filter" value="4"
-                            class="appearance-none h-6 w-6 border border-blue-400 rounded-lg checked:bg-blue-600 checked:border-transparent"
-                            onclick="this.form.submit()" />
-                        <h1 class="ml-3 my-1 text-blue-900 dark:text-blue-100">4+</h1>
+    <div class="h-screen overflow-y-hidden bg-gradient-to-br from-blue-50 to-blue-100">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-blue-200">
+            <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <!-- Logo/Brand (hidden on mobile) -->
+                    <div class="flex items-center">
+                        <h1 class="text-2xl font-bold text-blue-800 hidden sm:block">E-Commerce</h1>
                     </div>
-                    <div class="relative flex">
-                        <input type="radio" name="filter" value="3"
-                            class="appearance-none h-6 w-6 border border-blue-400 rounded-lg checked:bg-blue-600 checked:border-transparent"
-                            onclick="this.form.submit()" />
-                        <h1 class="ml-3 my-1 text-blue-900 dark:text-blue-100">3+</h1>
-                    </div>
-                    <div class="relative flex">
-                        <input type="radio" name="filter" value="2"
-                            class="appearance-none h-6 w-6 border border-blue-400 rounded-lg checked:bg-blue-600 checked:border-transparent"
-                            onclick="this.form.submit()" />
-                        <h1 class="ml-3 my-1 text-blue-900 dark:text-blue-100">2+</h1>
-                    </div>
-                    <div class="relative flex">
-                        <input type="radio" name="filter" value="1"
-                            class="appearance-none h-6 w-6 border border-blue-400 rounded-lg checked:bg-blue-600 checked:border-transparent"
-                            onclick="this.form.submit()" />
-                        <h1 class="ml-3 my-1 text-blue-900 dark:text-blue-100">1+</h1>
-                    </div>
-                </form>
-            </div>
-        </div>
 
-        <!-- Main Content -->
-        <div id="mainContent" class="flex flex-col w-full md:w-4/5 h-full overflow-y-auto">
-            <!-- Navbar -->
-            <div class="bg-blue-100 px-5 py-5 md:px-12 md:py-7">
-                <div class="flex flex-col md:flex-row items-center justify-between gap-x-8 gap-y-2 w-full">
-                    <div class="relative w-full md:w-2/3 mb-4 md:mb-0">
-                        <input class="border-blue-700 border-2 w-full justify-self-center rounded-2xl px-4 h-12"
-                            type="text" name="search" placeholder="Search..." onkeyup="sendData(this)">
-                        <div class="bg-white absolute z-10 w-full rounded-xl">
-                            <div id="searchResults" class=""></div>
+                    <!-- Search Bar (full width on mobile) -->
+                    <div class="flex-1 max-w-2xl mx-2 sm:mx-8">
+                        <div class="relative">
+                            <input type="text" placeholder="Search products..."
+                                class="w-full px-4 py-2 pl-10 pr-4 text-blue-900 bg-blue-50 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent"
+                                onkeyup="sendData(this)">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-search text-blue-300"></i>
+                            </div>
+                            <div id="searchSuggestionsContainer"
+                                class="bg-white absolute z-10 w-full rounded-lg shadow-lg border border-blue-100 mt-1 hidden">
+                                <div id="searchResults"></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="flex items-center justify-stretch px-5 gap-x-8 md:gap-x-10">
+
+                    <!-- Navigation (always visible, brand hidden on mobile) -->
+                    <div class="flex items-center space-x-4 sm:space-x-6">
                         <% if (!user) { %>
-                            <a href="/login" class="text-xl text-blue-900 underline w-full">Login</a>
-                            <a href="/register" class="text-xl text-blue-900 underline w-full">Register</a>
+                            <a href="/login"
+                                class="text-indigo-700 hover:text-indigo-900 font-medium transition-colors">Login</a>
+                            <a href="/register"
+                                class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">Register</a>
                             <% } else { %>
-                                <a href="/logout" class="text-xl text-blue-900 underline">Logout</a>
-                                <a href="/cart" class="text-xl text-blue-900 underline w-full">Cart</a>
-                                <% } %>
-                                    <% if (user && user.role==='admin' ) { %>
-                                        <a href="/admin" class="text-xl text-blue-900 underline w-full">
-                                            Dashboard</a>
-                                        <% } %>
+                                <a href="/cart"
+                                    class="text-indigo-700 hover:text-indigo-900 font-medium transition-colors flex items-center">
+                                    <span class="sm:hidden"><i class="fa-solid fa-shopping-cart text-lg"></i></span>
+                                    <span class="hidden sm:inline">Cart</span>
+                                </a>
+                                <% if (user && user.role==='admin' ) { %>
+                                    <a href="/admin"
+                                        class="text-indigo-700 hover:text-indigo-900 font-medium transition-colors">Dashboard</a>
+                                    <% } %>
+                                        <% if (user) { %>
+                                            <a href="/account"
+                                                class="ml-2 flex items-center justify-center w-8 h-8 rounded-full border-[3px] border-indigo-600 hover:border-indigo-400 transition overflow-hidden bg-white shadow-sm">
+                                                <img src="<%= user.profile %>" alt="Account"
+                                                    class="w-full h-full object-cover"
+                                                    onerror="this.onerror=null;this.src='/images/default-avatar.png';" />
+                                            </a>
+                                            <% } %>
+                                                <% } %>
                     </div>
                 </div>
             </div>
+        </header>
 
-            <!-- Products Component -->
-            <div class="flex flex-col h-full pt-5 px-3 md:px-10 bg-blue-100 overflow-y-auto">
-                <% const categories=["electronics", "mensFashion" , "womensFashion" , "kidsFashion" , "furniture"
-                    , "groceries" ]; %>
+        <!-- Main Layout with Sidebar -->
+        <div class="flex h-screen overflow-hidden">
+            <!-- Sidebar -->
+            <div id="sidebar" class="hidden md:block w-56 bg-white shadow-lg border-r border-blue-100 overflow-y-auto">
+                <div class="p-4">
+                    <!-- Categories Section -->
+                    <div class="mb-6">
+                        <h2 class="text-lg font-bold text-blue-800 mb-3">Explore Categories</h2>
+                        <div class="space-y-1">
+                            <% const categories=["electronics", "mensFashion" , "womensFashion" , "kidsFashion"
+                                , "furniture" , "groceries" ]; %>
+                                <% categories.forEach(category=> { %>
+                                    <a href="#<%= category %>"
+                                        class="flex items-center px-3 py-2 text-blue-700 hover:bg-blue-50 hover:text-blue-900 rounded-lg transition-colors font-medium text-base">
+                                        <%= category.replace(/([a-z])([A-Z])/g, '$1 $2' ).replace(/^./, str=>
+                                            str.toUpperCase()) %>
+                                    </a>
+                                    <% }) %>
+                        </div>
+                    </div>
+
+                    <!-- Filter by Rating Section -->
+                    <div class="mb-6">
+                        <h2 class="text-lg font-bold text-blue-800 mb-3">Filter By Rating</h2>
+                        <form action="/filter" method="post" class="space-y-2">
+                            <div class="flex items-center">
+                                <input type="radio" name="filter" value="4"
+                                    class="h-3 w-3 text-indigo-600 border-blue-200 focus:ring-indigo-400"
+                                    onclick="this.form.submit()" />
+                                <label class="ml-2 text-blue-900 font-medium text-base">4+ Stars</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="radio" name="filter" value="3"
+                                    class="h-3 w-3 text-indigo-600 border-blue-200 focus:ring-indigo-400"
+                                    onclick="this.form.submit()" />
+                                <label class="ml-2 text-blue-900 font-medium text-base">3+ Stars</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="radio" name="filter" value="2"
+                                    class="h-3 w-3 text-indigo-600 border-blue-200 focus:ring-indigo-400"
+                                    onclick="this.form.submit()" />
+                                <label class="ml-2 text-blue-900 font-medium text-base">2+ Stars</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="radio" name="filter" value="1"
+                                    class="h-3 w-3 text-indigo-600 border-blue-200 focus:ring-indigo-400"
+                                    onclick="this.form.submit()" />
+                                <label class="ml-2 text-blue-900 font-medium text-base">1+ Stars</label>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- FAQ Section -->
+                    <div class="mb-6">
+                        <a href="/faq"
+                            class="w-full bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold shadow transition flex items-center justify-center">
+                            FAQ
+                        </a>
+                    </div>
+
+                    <!-- Logout Section (only show when user is logged in) -->
+                    <% if (user) { %>
+                        <a href="/logout"
+                            class="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold shadow transition flex items-center justify-center">
+                            <i class="fa-solid fa-sign-out-alt mr-2"></i>
+                            Logout
+                        </a>
+                        <% } %>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="flex-1 overflow-y-auto">
+                <main class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6 sm:py-8">
+                    <!-- Products Grid -->
                     <% categories.forEach(category=> { %>
-                        <div class="container w-full px-3 pt-3 pb-10" id="<%= category %>">
-                            <a href="/category/<%= category %>"
-                                class="font-extrabold text-2xl md:text-3xl text-blue-900">Best of
-                                <%= category.replace(/([a-z])([A-Z])/g, '$1 $2' ).replace(/^./, str=> str.toUpperCase())
-                                    %>
-                            </a>
-                            <div class="flex flex-wrap gap-3 md:gap-8">
+                        <section id="<%= category %>" class="mb-12 sm:mb-16">
+                            <div class="flex items-center justify-between mb-6 sm:mb-8">
+                                <h2 class="text-2xl sm:text-3xl font-bold text-blue-900">
+                                    <%= category.replace(/([a-z])([A-Z])/g, '$1 $2' ).replace(/^./, str=>
+                                        str.toUpperCase()) %>
+                                </h2>
+                                <a href="/category/<%= category %>"
+                                    class="text-indigo-600 hover:text-indigo-800 font-medium transition-colors text-sm sm:text-base">
+                                    View All →
+                                </a>
+                            </div>
+
+                            <div
+                                class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-5 px-4">
                                 <% let count=0; %>
                                     <% products.forEach(product=> { %>
-                                        <% if (product.categories.includes(category) && count < 10) { %>
-                                            <a
-                                                href="/category/<%= category %>/<%= product.sub_categories %>/<%= product._id %>">
-                                                <div
-                                                    class="cards flex flex-wrap gap-8 md:gap-10 mt-5 shadow-lg rounded-xl overflow-hidden bg-blue-50">
-                                                    <div
-                                                        class="relative card rounded-xl w-40 h-52 md:w-48 md:h-60 lg:w-52 lg:h-64 overflow-hidden bg-white">
-                                                        <div class="w-full h-4/6">
-                                                            <% if (product.total_rating) { %>
-                                                                <div
-                                                                    class="absolute top-[100px] md:top-[125px] lg:top-[135px] left-3 px-1 flex items-center justify-between text-blue-200 bg-blue-800 border-2 border-blue-300 gap-1 rounded-lg">
-                                                                    <h1>
-                                                                        <%= product.total_rating %>
-                                                                    </h1>
-                                                                    <p><i class="fa-solid fa-star"
-                                                                            style="color: #FFD43B;"></i></p>
-                                                                </div>
-                                                                <% } %>
-                                                                    <% if (cartProducts &&
-                                                                        cartProducts.includes(product._id.toString())) {
-                                                                        %>
-                                                                        <div
-                                                                            class="absolute top-[115px] md:top-[138px] lg:top-[148px] right-2 px-1 flex items-center justify-between rounded-lg">
-                                                                            <i class="fa-regular fa-cart-circle-check fa-xl"
-                                                                                style="color: #11d80e;"></i>
-                                                                        </div>
-                                                                        <% } %>
-                                                                            <img class="h-full w-full object-cover"
-                                                                                src="/images/uploads/<%= product.image %>">
-                                                        </div>
-                                                        <div class="flex flex-col justify-between h-1/3 px-4 truncate">
-                                                            <h1
-                                                                class="text-lg md:text-xl md:pt-2 font-semibold text-center text-blue-900 px-2 overflow-hidden text-ellipsis whitespace-nowrap">
-                                                                <%= product.name %>
-                                                            </h1>
-                                                            <div class="flex justify-evenly items-center mb-3 gap-2">
-                                                                <h2
-                                                                    class="text-lg md:text-xl font-semibold text-blue-800">
-                                                                    ₹<%= product.price %>
-                                                                </h2>
-                                                                <form
-                                                                    action="/category/<%= category %>/<%= product.sub_categories %>/<%= product._id %>"
-                                                                    method="post">
-                                                                    <input type="hidden" name="productId"
-                                                                        value="<%= product._id %>">
-                                                                    <button type="submit"
-                                                                        class="bg-blue-700 text-sm md:text-md font-bold text-white py-1 px-2 rounded-lg hover:bg-blue-900 hover:text-white transition-all ease-in-out duration-300">
-                                                                        <span class="block md:hidden">Add</span>
-                                                                        <span class="hidden md:block">Add to Cart</span>
-                                                                    </button>
-                                                                </form>
+                                        <% if (product.categories.includes(category) && count < 12) { %>
+                                            <div
+                                                class="bg-white w-full h-fit rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden flex flex-col">
+                                                <a
+                                                    href="/category/<%= category %>/<%= product.sub_categories %>/<%= product._id %>">
+                                                    <div class="relative">
+                                                        <img src="/images/uploads/<%= product.image %>"
+                                                            alt="<%= product.name %>"
+                                                            class="w-full h-28 xs:h-32 sm:h-36 md:h-40 object-cover">
+                                                        <% if (product.total_rating) { %>
+                                                            <div
+                                                                class="absolute top-3 left-3 bg-indigo-600 text-white px-1 py-0.5 rounded text-xs font-medium flex items-center">
+                                                                <span class="mr-1">
+                                                                    <%= product.total_rating %>
+                                                                </span>
+                                                                <i class="fa-solid fa-star text-yellow-300 text-xs"></i>
                                                             </div>
+                                                            <% } %>
+                                                                <% if (cartProducts &&
+                                                                    cartProducts.includes(product._id.toString())) { %>
+                                                                    <div
+                                                                        class="absolute top-2 right-2 bg-emerald-500 text-white px-1.5 rounded-full">
+                                                                        <i class="fa-solid fa-check text-sm"></i>
+                                                                    </div>
+                                                                    <% } %>
+                                                    </div>
+
+                                                    <div class="px-3 py-2 sm:px-2.5 sm:py-2.5">
+                                                        <h3
+                                                            class="font-semibold text-blue-900 mb-1.5 text-sm sm:text-base truncate whitespace-nowrap overflow-hidden">
+                                                            <%= product.name %>
+                                                        </h3>
+                                                        <div class="flex items-center justify-between">
+                                                            <span
+                                                                class="text-sm sm:text-base font-bold text-indigo-600">
+                                                                ₹<%= product.price %>
+                                                            </span>
+                                                            <form
+                                                                action="/category/<%= category %>/<%= product.sub_categories %>/<%= product._id %>"
+                                                                method="post">
+                                                                <input type="hidden" name="productId"
+                                                                    value="<%= product._id %>">
+                                                                <button type="submit"
+                                                                    class="sm:bg-indigo-600 sm:text-white sm:rounded sm:px-3 sm:py-1.5 text-xs xs:text-sm font-medium hover:sm:bg-indigo-700 transition-colors flex items-center justify-center">
+                                                                    <span class="sm:hidden"><i
+                                                                            class="fa-solid fa-cart-plus text-indigo-600 text-lg"></i></span>
+                                                                    <span class="hidden sm:inline">Add to Cart</span>
+                                                                </button>
+                                                            </form>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </a>
+                                                </a>
+                                            </div>
                                             <% count++; %>
                                                 <% } %>
                                                     <% }) %>
                             </div>
-                        </div>
+                        </section>
                         <% }) %>
+                </main>
             </div>
         </div>
     </div>
 
     <script>
+        // Smooth scrolling for category links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
             });
         });
 
+        // Search functionality
         function sendData(e) {
             const searchResults = document.getElementById('searchResults');
+            const searchSuggestionsContainer = document.getElementById('searchSuggestionsContainer');
             let match = e.value.match(/^[a-zA-z]*/);
             let match2 = e.value.match(/\s*/);
+
             if (match2[0] === e.value) {
                 searchResults.innerHTML = '';
+                searchSuggestionsContainer.classList.add('hidden');
                 return;
             }
+
             if (match[0] === e.value) {
                 fetch('searchProducts', {
                     method: 'POST',
@@ -195,29 +249,40 @@
                 }).then(res => res.json()).then(data => {
                     let payload = data.payload;
                     searchResults.innerHTML = '';
+
                     if (payload.length < 1) {
-                        searchResults.innerHTML = '<p>Nothing found</p>';
+                        searchResults.innerHTML = '<p class="p-4 text-gray-500">No products found</p>';
+                        searchSuggestionsContainer.classList.remove('hidden');
                         return;
                     }
+
                     payload.forEach((item, index) => {
-                        if (index > 0) searchResults.innerHTML += '<hr>';
+                        if (index > 0) searchResults.innerHTML += '<hr class="border-gray-200">';
                         searchResults.innerHTML += `
-                    <a href="/category/${item.categories}/${item.sub_categories}/${item._id}" class="flex h-14 items-center hover:bg-sky-100 hover:rounded-xl hover:text-blue-900 px-3 py-2 font-bold hover:font-bold">
-                        <div class="w-10 h-10 overflow-hidden rounded-full mr-10">
-                            <img class="w-full h-full object-cover" src="/images/uploads/${item.image}"/>
-                        </div>
-                        <p>${item.name}</p>
-                    </a>
-                    `;
+                            <a href="/category/${item.categories}/${item.sub_categories}/${item._id}" 
+                               class="flex items-center p-4 hover:bg-blue-50 transition-colors">
+                                <div class="w-12 h-12 overflow-hidden rounded-lg mr-4 flex-shrink-0">
+                                    <img class="w-full h-full object-cover" src="/images/uploads/${item.image}"/>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900">${item.name}</p>
+                                    <p class="text-sm text-gray-500">${item.categories}</p>
+                                </div>
+                            </a>
+                        `;
                     });
+                    searchSuggestionsContainer.classList.remove('hidden');
                 });
                 return;
             }
             searchResults.innerHTML = '';
+            searchSuggestionsContainer.classList.add('hidden');
         }
 
+        // SweetAlert notifications
         const urlParams = new URLSearchParams(window.location.search);
         const message = urlParams.get('message');
+
         if (message === 'RS') {
             Swal.fire({
                 icon: 'success',
@@ -238,11 +303,10 @@
                 icon: 'success',
                 showCancelButton: true,
                 confirmButtonText: 'Go to Cart',
-                cancelButtonText: 'OK',
+                cancelButtonText: 'Continue Shopping',
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Redirect to cart page when 'Go to Cart' is clicked
                     window.location.href = "/cart";
                 }
             });
