@@ -1,5 +1,5 @@
 {
-  "name": "ecommerce",
+  "name": "SnapCart",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -29,6 +29,7 @@
     "mongoose": "^8.1.0",
     "morgan": "~1.9.1",
     "multer": "^1.4.5-lts.1",
+    "node-fetch": "^2.6.7",
     "nodemailer": "^6.10.1",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",

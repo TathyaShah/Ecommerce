@@ -7,6 +7,7 @@ const localStrategy = require("passport-local");
 const passport = require("passport");
 const upload = require("./multer");
 const nodemailer = require('nodemailer');
+const fetch = require('node-fetch'); // Add at the top
 // const { user } = require("fontawesome");
 
 const router = express.Router();
@@ -1051,6 +1052,7 @@ router.post("/upload", upload.single("file"), async (req, res) => {
       price: req.body.price,
       categories: req.body.category,
       sub_categories: req.body.subcategory,
+      stock: req.body.stock || 0
     });
 
     await product.save();
@@ -1068,6 +1070,111 @@ router.get("/logout", (req, res, next) => {
     }
     res.redirect("/");
   });
+});
+
+// Admin update stock route
+router.post('/admin/update-stock', isAdmin, async (req, res) => {
+  try {
+    const { productId, newStock } = req.body;
+    if (!productId || typeof newStock === 'undefined') {
+      return res.status(400).json({ success: false, message: 'Missing productId or newStock' });
+    }
+    const product = await productModel.findById(productId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found' });
+    }
+    product.stock = newStock;
+    await product.save();
+    res.json({ success: true, message: 'Stock updated successfully', stock: product.stock });
+  } catch (error) {
+    console.error('Error updating stock:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// Delivery time estimator route
+router.post('/cart/delivery-time', async (req, res) => {
+  try {
+    // Support both AJAX and form POST
+    let pincode = req.body.pincode;
+    let cartItems = req.body.cartItems;
+    // If cartItems is an array of JSON strings (from form), parse each
+    if (Array.isArray(cartItems)) {
+      cartItems = cartItems.map(item => typeof item === 'string' ? JSON.parse(item) : item);
+    } else if (typeof cartItems === 'string') {
+      try { cartItems = JSON.parse(cartItems); } catch (e) { cartItems = []; }
+    }
+    if (!pincode || !cartItems || !Array.isArray(cartItems)) {
+      return res.status(400).render('cart', { ...req.app.locals, deliveryResults: [{ message: 'Missing pincode or cart items.' }] });
+    }
+    // Validate pincode using India Post API
+    let cityName = null;
+    let apiError = null;
+    try {
+      const response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+      const data = await response.json();
+      if (data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
+        cityName = data[0].PostOffice[0].District;
+      } else {
+        apiError = 'Invalid or unsupported pincode entered.';
+      }
+    } catch (err) {
+      apiError = 'Could not validate pincode. Please try again.';
+    }
+    if (!cityName) {
+      // Invalid pincode
+      const userId = req.session.passport.user;
+      const cart = await cartModel.findOne({ user: userId });
+      const products = cart ? cart.products : [];
+      const discount = cart ? cart.discount : 0;
+      const contains = null;
+      const code = null;
+      return res.render('cart', { ...req.app.locals, cart, products, cartProducts: products, deliveryResults: [{ message: apiError }], maxDeliveryTimeString: null, cityName: null, discount, contains, code });
+    }
+    const warehousePincode = 400001;
+    const results = [];
+    let maxDeliveryTimeInHours = 0;
+    let maxDeliveryTimeString = '';
+    for (const item of cartItems) {
+      const product = await productModel.findById(item.productId);
+      if (!product) {
+        results.push({ productId: item.productId, status: 'not_found', message: 'Product not found' });
+        continue;
+      }
+      if (product.stock === 0) {
+        results.push({ productId: item.productId, status: 'out_of_stock', name: product.name, message: `Item ${product.name} is out of stock` });
+        continue;
+      }
+      // New formula: greater delivery time
+      const deliveryTimeInHours = Math.abs(Number(pincode) - warehousePincode) % 48 + 24; // 1-2 days minimum
+      if (deliveryTimeInHours > maxDeliveryTimeInHours) maxDeliveryTimeInHours = deliveryTimeInHours;
+      const days = Math.floor(deliveryTimeInHours / 24);
+      const hours = deliveryTimeInHours % 24;
+      const deliveryTime = `${days > 0 ? days + ' days ' : ''}${hours} hours`;
+      results.push({ productId: item.productId, status: 'ok', name: product.name, deliveryTime });
+    }
+    if (maxDeliveryTimeInHours > 0) {
+      const days = Math.floor(maxDeliveryTimeInHours / 24);
+      const hours = maxDeliveryTimeInHours % 24;
+      maxDeliveryTimeString = `${days > 0 ? days + ' days ' : ''}${hours} hours`;
+    }
+    // If AJAX, respond with JSON. If form, render cart.ejs with deliveryResults.
+    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+      return res.json({ success: true, results });
+    } else {
+      // Re-fetch cart and products for rendering
+      const userId = req.session.passport.user;
+      const cart = await cartModel.findOne({ user: userId });
+      const products = cart ? cart.products : [];
+      const discount = cart ? cart.discount : 0;
+      const contains = null;
+      const code = null;
+      res.render('cart', { ...req.app.locals, cart, products, cartProducts: products, deliveryResults: results, maxDeliveryTimeString, cityName, discount, contains, code });
+    }
+  } catch (error) {
+    console.error('Error estimating delivery time:', error);
+    res.status(500).render('cart', { ...req.app.locals, deliveryResults: [{ message: 'Internal server error' }] });
+  }
 });
 
 module.exports = router;

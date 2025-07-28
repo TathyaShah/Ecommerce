@@ -29,6 +29,11 @@ const productSchema = new mongoose.Schema({
         min: 0,
         max: 5,
         default: 0
+    },
+    stock: {
+        type: Number,
+        required: true,
+        default: 0
     }
 })
 module.exports = mongoose.model("products", productSchema)
